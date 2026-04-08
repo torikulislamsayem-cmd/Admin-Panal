@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛡️ SHB Admin Panel — স্বপ্নের হাট বাজার</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #e8531a;
+  --primary-dark: #c04010;
+  --secondary: #1a3c2e;
+  --secondary-light: #2a5c46;
+  --accent: #f7c94e;
+  --bg: #0f1117;
+  --bg2: #161b22;
+  --bg3: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --green: #2ea043;
+  --green-light: #1a4429;
+  --red: #f85149;
+  --red-light: #3d1515;
+  --blue: #58a6ff;
+  --blue-light: #1a2a4a;
+  --yellow: #e3b341;
+  --yellow-light: #3a2d00;
+  --purple: #bc8cff;
+  --purple-light: #2d1f50;
+  --orange: #ff9a3c;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Hind Siliguri', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  height: 100vh;
+  position: fixed;
+  left: 0; top: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar-logo .logo-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.sidebar-logo .logo-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.sidebar-logo .logo-text span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  display: block;
+}
+
+.sidebar-section {
+  padding: 16px 12px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin: 2px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  width: calc(100% - 16px);
+  text-align: left;
+  position: relative;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active {
+  background: rgba(232,83,26,0.15);
+  color: var(--primary);
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 25%; bottom: 25%;
+  width: 3px;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+  margin-left: -8px;
+}
+.nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 100px;
+  min-width: 20px;
+  text-align: center;
+}
+.nav-badge.green { background: var(--green); }
+.nav-badge.yellow { background: var(--yellow); color: #000; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.live-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ===== MAIN ===== */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.topbar-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sync-btn {
+  background: rgba(88,166,255,0.15);
+  color: var(--blue);
+  border: 1px solid rgba(88,166,255,0.3);
+  padding: 7px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  font-family: 'Hind Siliguri', sans-serif;
+}
+.sync-btn:hover { background: rgba(88,166,255,0.25); }
+.sync-btn.syncing { animation: spin 1s linear infinite; }
+@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+.network-pill {
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.network-pill.online { background: var(--green-light); color: #4caf50; border: 1px solid rgba(46,160,67,0.3); }
+.network-pill.offline { background: var(--red-light); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+
+/* ===== CONTENT AREA ===== */
+.content {
+  padding: 24px;
+  flex: 1;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); border-color: var(--text-muted); }
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--stat-color, var(--primary));
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.stat-icon { font-size: 28px; margin-bottom: 10px; }
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.stat-change {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.stat-change.up { background: var(--green-light); color: #4caf50; }
+.stat-change.neutral { background: var(--bg3); color: var(--text-muted); }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-body { padding: 20px; }
+
+/* ===== TABLE ===== */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead th {
+  background: var(--bg3);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--border);
+}
+thead th:hover { color: var(--text); }
+thead th.sorted-asc::after { content: ' ↑'; color: var(--blue); }
+thead th.sorted-desc::after { content: ' ↓'; color: var(--blue); }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg3); }
+tbody tr.highlight-new { background: rgba(247,201,78,0.08); }
+tbody tr.highlight-new td:first-child { border-left: 3px solid var(--yellow); }
+td { padding: 12px 14px; vertical-align: middle; white-space: nowrap; }
+
+/* ===== STATUS BADGE ===== */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.status-new { background: rgba(247,201,78,0.2); color: var(--yellow); border: 1px solid rgba(247,201,78,0.3); }
+.status-confirmed { background: rgba(88,166,255,0.2); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+.status-processing { background: rgba(255,154,60,0.2); color: var(--orange); border: 1px solid rgba(255,154,60,0.3); }
+.status-shipped { background: rgba(188,140,255,0.2); color: var(--purple); border: 1px solid rgba(188,140,255,0.3); }
+.status-delivered { background: rgba(46,160,67,0.2); color: #4caf50; border: 1px solid rgba(46,160,67,0.3); }
+.status-cancelled { background: rgba(248,81,73,0.2); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+
+/* ===== BTN ===== */
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-success { background: rgba(46,160,67,0.2); color: #4caf50; border: 1px solid rgba(46,160,67,0.3); }
+.btn-success:hover { background: rgba(46,160,67,0.35); }
+.btn-danger { background: rgba(248,81,73,0.2); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+.btn-danger:hover { background: rgba(248,81,73,0.35); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { padding: 6px; border-radius: var(--radius-sm); }
+
+/* ===== SEARCH BAR ===== */
+.search-bar {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  color: var(--text);
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  max-width: 300px;
+}
+.search-bar:focus { border-color: var(--blue); }
+.search-bar::placeholder { color: var(--text-muted); }
+
+/* ===== SELECT ===== */
+select, input[type="text"], input[type="url"], input[type="date"], textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+select:focus, input:focus, textarea:focus { border-color: var(--blue); }
+select option { background: var(--bg2); }
+textarea { resize: vertical; min-height: 80px; width: 100%; }
+
+/* ===== FILTERS ===== */
+.filters-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.filter-chip {
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  font-family: 'Hind Siliguri', sans-serif;
+}
+.filter-chip:hover { background: var(--bg2); color: var(--text); }
+.filter-chip.active { background: rgba(232,83,26,0.2); color: var(--primary); border-color: rgba(232,83,26,0.4); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 560px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: modalIn 0.25s ease;
+}
+@keyframes modalIn { from{transform:scale(0.93) translateY(16px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+.modal-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px; }
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ===== FORM GRID ===== */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid.single { grid-template-columns: 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; }
+
+/* ===== CHART ===== */
+.chart-wrap { position: relative; height: 200px; }
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 170px;
+  padding: 0 4px;
+}
+.chart-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.chart-bar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+  min-height: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.chart-bar:hover { opacity: 0.8; }
+.chart-bar-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.chart-bar-val {
+  font-size: 10px;
+  color: var(--text);
+  font-weight: 600;
+  text-align: center;
+}
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+
+/* ===== TIMELINE / ACTIVITY ===== */
+.activity-list { display: flex; flex-direction: column; gap: 0; }
+.activity-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.activity-dot.new { background: rgba(247,201,78,0.2); }
+.activity-dot.delivered { background: rgba(46,160,67,0.2); }
+.activity-dot.cancelled { background: rgba(248,81,73,0.2); }
+.activity-dot.default { background: rgba(88,166,255,0.2); }
+.activity-text { font-size: 13px; line-height: 1.6; flex: 1; }
+.activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.activity-highlight {
+  background: rgba(247,201,78,0.1);
+  border-left: 3px solid var(--yellow);
+  padding: 3px 8px;
+  border-radius: 0 4px 4px 0;
+  animation: newPulse 2s ease 3;
+}
+@keyframes newPulse { 0%,100%{background:rgba(247,201,78,0.1)} 50%{background:rgba(247,201,78,0.25)} }
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  animation: toastIn 0.3s ease;
+  pointer-events: auto;
+}
+.toast.success { border-left: 4px solid var(--green); }
+.toast.error { border-left: 4px solid var(--red); }
+.toast.info { border-left: 4px solid var(--blue); }
+@keyframes toastIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes toastOut { from{transform:translateX(0);opacity:1} to{transform:translateX(120%);opacity:0} }
+.toast.out { animation: toastOut 0.3s ease forwards; }
+
+/* ===== SETTINGS ===== */
+.settings-section { margin-bottom: 28px; }
+.settings-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  gap: 20px;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-info { flex: 1; }
+.settings-info .s-label { font-size: 14px; font-weight: 600; color: var(--text); }
+.settings-info .s-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Toggle switch */
+.toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 2px; top: 2px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.toggle-wrap input:checked + .toggle-slider { background: rgba(46,160,67,0.3); border-color: var(--green); }
+.toggle-wrap input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--green); }
+
+/* ===== GOOGLE SHEET CONFIG ===== */
+.sheet-config-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.sheet-config-box.connected { border-color: rgba(46,160,67,0.4); background: rgba(26,68,41,0.3); }
+.sheet-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.sheet-status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.sheet-status-dot.active { background: var(--green); box-shadow: 0 0 8px rgba(46,160,67,0.5); }
+.sheet-status-text { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.sheet-status-text.active { color: #4caf50; }
+
+.code-block {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #a8b9cc;
+  overflow-x: auto;
+  white-space: pre;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+.code-block .c-keyword { color: #ff7b72; }
+.code-block .c-string { color: #a5d6ff; }
+.code-block .c-comment { color: #6a9955; }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state .empty-text { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.empty-state .empty-sub { font-size: 13px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-260px); }
+  .sidebar.mobile-open { transform: translateX(0); width: 260px; }
+  .main { margin-left: 0; }
+  .topbar { padding: 12px 16px; }
+  .content { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .mobile-menu-btn { display: flex !important; }
+}
+
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  transition: width 0.8s ease;
+}
+
+/* ===== TOOLTIP ===== */
+[data-tip] {
+  position: relative;
+}
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 99;
+}
+[data-tip]:hover::after { opacity: 1; }
+
+/* ===== DONUT CHART ===== */
+.donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.donut-svg { width: 120px; height: 120px; flex-shrink: 0; }
+.donut-legend { flex: 1; min-width: 150px; }
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 13px;
+}
+.donut-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend-label { flex: 1; color: var(--text-muted); }
+.donut-legend-val { font-weight: 700; color: var(--text); }
+
+/* ===== MAP / LOCATION ===== */
+.location-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.location-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center;
+}
+.location-pct { font-size: 22px; font-weight: 800; color: var(--text); }
+.location-name { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.location-count { font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px; }
+
+/* ===== NOTIFICATION BADGE ===== */
+.notification-pulse {
+  position: absolute;
+  top: -3px; right: -3px;
+  width: 10px; height: 10px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 2px solid var(--bg2);
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* ===== PRINT INVOICE ===== */
+@media print {
+  .sidebar, .topbar, .filters-row, .btn, .no-print { display: none !important; }
+  .main { margin-left: 0; }
+  body { background: white; color: black; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🛡️</div>
+    <div class="logo-text">
+      SHB Admin
+      <span>স্বপ্নের হাট বাজার</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section">মূল মেনু</div>
+  <button class="nav-item active" onclick="showPage('dashboard', this)">
+    <span class="nav-icon">📊</span> ড্যাশবোর্ড
+  </button>
+  <button class="nav-item" onclick="showPage('orders', this)">
+    <span class="nav-icon">📦</span> অর্ডার তালিকা
+    <span class="nav-badge" id="new-order-badge">0</span>
+  </button>
+  <button class="nav-item" onclick="showPage('live', this)">
+    <span class="nav-icon">🔴</span> লাইভ অর্ডার
+    <span class="nav-badge yellow" id="live-badge">0</span>
+  </button>
+  <button class="nav-item" onclick="showPage('analytics', this)">
+    <span class="nav-icon">📈</span> বিশ্লেষণ
+  </button>
+  <button class="nav-item" onclick="showPage('customers', this)">
+    <span class="nav-icon">👥</span> কাস্টমার
+  </button>
+
+  <div class="sidebar-section">ব্যবস্থাপনা</div>
+  <button class="nav-item" onclick="showPage('export', this)">
+    <span class="nav-icon">📤</span> এক্সপোর্ট / প্রিন্ট
+  </button>
+  <button class="nav-item" onclick="showPage('settings', this)">
+    <span class="nav-icon">⚙️</span> সেটিংস
+  </button>
+
+  <div class="sidebar-footer">
+    <div><span class="live-dot"></span> সিস্টেম অনলাইন</div>
+    <div style="margin-top:6px;font-size:11px;" id="last-sync-text">সর্বশেষ সিঙ্ক: এখনও হয়নি</div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div>
+      <div class="topbar-title" id="page-title">📊 ড্যাশবোর্ড</div>
+    </div>
+    <div class="topbar-right">
+      <div class="network-pill online" id="network-pill">
+        <span>🟢</span> অনলাইন
+      </div>
+      <button class="sync-btn" onclick="syncFromSheet()" id="sync-btn" data-tip="Google Sheet থেকে আপডেট নিন">
+        🔄 Sheet Sync
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ========== PAGE: DASHBOARD ========== -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--stat-color: var(--yellow)">
+          <div class="stat-icon">📦</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">মোট অর্ডার</div>
+          <span class="stat-change neutral" id="stat-total-change">— আজ নতুন নেই</span>
+        </div>
+        <div class="stat-card" style="--stat-color: var(--green)">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="stat-delivered">0</div>
+          <div class="stat-label">ডেলিভারি সম্পন্ন</div>
+          <span class="stat-change up" id="stat-del-pct">— %</span>
+        </div>
+        <div class="stat-card" style="--stat-color: var(--blue)">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="stat-revenue">০ ৳</div>
+          <div class="stat-label">মোট আয়</div>
+          <span class="stat-change up" id="stat-rev-sub">— সম্পন্ন</span>
+        </div>
+        <div class="stat-card" style="--stat-color: var(--orange)">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" id="stat-pending">0</div>
+          <div class="stat-label">পেন্ডিং অর্ডার</div>
+          <span class="stat-change neutral">প্রক্রিয়াধীন</span>
+        </div>
+        <div class="stat-card" style="--stat-color: var(--primary)">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-value" id="stat-today">0</div>
+          <div class="stat-label">আজকের অর্ডার</div>
+          <span class="stat-change up">আজ</span>
+        </div>
+        <div class="stat-card" style="--stat-color: var(--purple)">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="stat-customers">0</div>
+          <div class="stat-label">মোট কাস্টমার</div>
+          <span class="stat-change neutral">ইউনিক</span>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;" class="resp-grid">
+        <!-- Weekly Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 সাপ্তাহিক অর্ডার</div>
+            <select id="chart-period" onchange="renderWeeklyChart()" style="font-size:12px;padding:5px 10px;">
+              <option value="7">গত ৭ দিন</option>
+              <option value="14">গত ১৪ দিন</option>
+              <option value="30">গত ৩০ দিন</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="chart-bars" id="weekly-chart"></div>
+          </div>
+        </div>
+
+        <!-- Status Donut -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎯 স্ট্যাটাস বিভাজন</div>
+          </div>
+          <div class="card-body">
+            <div class="donut-wrap">
+              <svg class="donut-svg" viewBox="0 0 42 42" id="donut-svg">
+                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#1c2333" stroke-width="4"/>
+                <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f7c94e" stroke-width="4"
+                  stroke-dasharray="100 0" stroke-dashoffset="25" id="donut-arc"/>
+              </svg>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders + Activity -->
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;" class="resp-grid">
+        <!-- Recent Orders -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🆕 সাম্প্রতিক অর্ডার</div>
+            <button class="btn btn-secondary btn-sm" onclick="showPage('orders', document.querySelector('[onclick*=\"orders\"]'))">সব দেখুন →</button>
+          </div>
+          <div class="table-wrap">
+            <table id="recent-orders-table">
+              <thead>
+                <tr>
+                  <th>অর্ডার আইডি</th>
+                  <th>নাম</th>
+                  <th>পরিমাণ</th>
+                  <th>মোট</th>
+                  <th>স্ট্যাটাস</th>
+                </tr>
+              </thead>
+              <tbody id="recent-orders-body">
+                <tr><td colspan="5" class="empty-state" style="padding:30px">
+                  <div class="empty-icon">📭</div>
+                  <div>কোনো অর্ডার নেই</div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ লাইভ অ্যাক্টিভিটি</div>
+            <span style="font-size:11px;color:var(--text-muted);" id="activity-count">০টি ইভেন্ট</span>
+          </div>
+          <div class="card-body" style="padding:0 16px;">
+            <div class="activity-list" id="activity-feed">
+              <div class="empty-state">
+                <div class="empty-icon">🔔</div>
+                <div class="empty-text">কোনো অ্যাক্টিভিটি নেই</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE: ORDERS ========== -->
+    <div class="page" id="page-orders">
+      <div class="card">
+        <!-- Filters -->
+        <div class="filters-row">
+          <input class="search-bar" type="text" placeholder="🔍 নাম, মোবাইল, অর্ডার আইডি খুঁজুন..." id="order-search" oninput="filterOrders()">
+          <select onchange="filterOrders()" id="status-filter" style="min-width:130px;">
+            <option value="">সব স্ট্যাটাস</option>
+            <option value="নতুন অর্ডার">নতুন অর্ডার</option>
+            <option value="কনফার্ম">কনফার্ম</option>
+            <option value="প্রসেসিং">প্রসেসিং</option>
+            <option value="শিপড">শিপড</option>
+            <option value="ডেলিভারি সম্পন্ন">ডেলিভারি সম্পন্ন</option>
+            <option value="বাতিল">বাতিল</option>
+          </select>
+          <input type="date" id="date-filter" onchange="filterOrders()" title="তারিখ ফিল্টার">
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="printOrders()">🖨️ প্রিন্ট</button>
+            <button class="btn btn-primary btn-sm" onclick="openAddOrder()">+ নতুন অর্ডার</button>
+          </div>
+        </div>
+
+        <!-- Status Chips -->
+        <div class="filters-row" style="padding:10px 20px;gap:8px;">
+          <button class="filter-chip active" onclick="setStatusFilter('', this)">সব</button>
+          <button class="filter-chip" onclick="setStatusFilter('নতুন অর্ডার', this)">🆕 নতুন</button>
+          <button class="filter-chip" onclick="setStatusFilter('কনফার্ম', this)">✅ কনফার্ম</button>
+          <button class="filter-chip" onclick="setStatusFilter('প্রসেসিং', this)">⚙️ প্রসেসিং</button>
+          <button class="filter-chip" onclick="setStatusFilter('শিপড', this)">🚚 শিপড</button>
+          <button class="filter-chip" onclick="setStatusFilter('ডেলিভারি সম্পন্ন', this)">📦 সম্পন্ন</button>
+          <button class="filter-chip" onclick="setStatusFilter('বাতিল', this)">❌ বাতিল</button>
+          <span style="margin-left:auto;font-size:13px;color:var(--text-muted);" id="orders-count-text">মোট ০টি অর্ডার</span>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table id="orders-table">
+            <thead>
+              <tr>
+                <th onclick="sortOrders('ts')">তারিখ</th>
+                <th onclick="sortOrders('id')">অর্ডার আইডি</th>
+                <th onclick="sortOrders('name')">নাম</th>
+                <th>মোবাইল</th>
+                <th>ঠিকানা</th>
+                <th onclick="sortOrders('qty')">পরিমাণ</th>
+                <th onclick="sortOrders('total')">মোট (৳)</th>
+                <th>স্ট্যাটাস</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);">
+          <span style="font-size:13px;color:var(--text-muted);" id="pagination-info">০ - ০ এর মধ্যে ০</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="changePage(-1)" id="prev-btn">← আগে</button>
+            <span style="padding:5px 12px;background:var(--bg3);border-radius:6px;font-size:13px;" id="page-num">১</span>
+            <button class="btn btn-secondary btn-sm" onclick="changePage(1)" id="next-btn">পরে →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE: LIVE ========== -->
+    <div class="page" id="page-live">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;" class="resp-grid">
+        <div class="card" style="border-color:rgba(247,201,78,0.3);">
+          <div class="card-header">
+            <div class="card-title">🔴 লাইভ নতুন অর্ডার <span class="live-dot" style="margin-left:6px;"></span></div>
+            <span style="font-size:12px;color:var(--text-muted);">আপনা-আপনি রিফ্রেশ</span>
+          </div>
+          <div class="card-body" id="live-new-orders">
+            <div class="empty-state">
+              <div class="empty-icon">⏰</div>
+              <div class="empty-text">নতুন কোনো অর্ডার আসেনি</div>
+              <div class="empty-sub">Sheet Sync করলে নতুন অর্ডার এখানে দেখাবে</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 আজকের সংখ্যা</div>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="today-stats-grid">
+              <div style="background:var(--bg3);border-radius:8px;padding:16px;text-align:center;">
+                <div style="font-size:28px;font-weight:800;color:var(--yellow);" id="today-new">0</div>
+                <div style="font-size:12px;color:var(--text-muted);">নতুন অর্ডার</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:8px;padding:16px;text-align:center;">
+                <div style="font-size:28px;font-weight:800;color:var(--green);" id="today-del">0</div>
+                <div style="font-size:12px;color:var(--text-muted);">ডেলিভারি</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:8px;padding:16px;text-align:center;">
+                <div style="font-size:24px;font-weight:800;color:var(--blue);" id="today-rev">০৳</div>
+                <div style="font-size:12px;color:var(--text-muted);">আজকের আয়</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:8px;padding:16px;text-align:center;">
+                <div style="font-size:28px;font-weight:800;color:var(--orange);" id="today-pending">0</div>
+                <div style="font-size:12px;color:var(--text-muted);">পেন্ডিং</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Sheet Live Instructions -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📡 Google Sheet → Admin Panel লাইভ সংযোগ</div>
+          <div id="sheet-live-status" class="network-pill offline" style="font-size:12px;">❌ সংযুক্ত নয়</div>
+        </div>
+        <div class="card-body">
+          <div style="background:rgba(247,201,78,0.1);border:1px solid rgba(247,201,78,0.3);border-radius:8px;padding:16px;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;color:var(--yellow);margin-bottom:10px;">⚡ কীভাবে লাইভ কাজ করে:</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.8;">
+              ১. আপনার <strong>Google Sheet</strong> এ নতুন অর্ডার আসলে<br>
+              ২. এই Admin Panel <strong>স্বয়ংক্রিয়ভাবে</strong> প্রতি ৩০ সেকেন্ডে চেক করবে<br>
+              ৩. নতুন অর্ডার <span style="color:var(--yellow);font-weight:700;">হলুদ রঙে হাইলাইট</span> হয়ে দেখাবে<br>
+              ৪. Sound Notification বাজবে (Settings থেকে চালু করুন)<br>
+              ৫. Browser Notification আসবে (অনুমতি দিলে)
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="startLiveSync()">▶️ লাইভ সিঙ্ক শুরু করুন</button>
+            <button class="btn btn-secondary" onclick="stopLiveSync()">⏹️ বন্ধ করুন</button>
+            <button class="btn btn-secondary" onclick="showPage('settings', null)">⚙️ Sheet সেটআপ করুন</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE: ANALYTICS ========== -->
+    <div class="page" id="page-analytics">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;" class="resp-grid">
+        <!-- Revenue Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">💰 আয়ের ট্রেন্ড</div>
+          </div>
+          <div class="card-body">
+            <div class="chart-bars" id="revenue-chart" style="height:160px;"></div>
+          </div>
+        </div>
+        <!-- Top Areas -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📍 শীর্ষ এলাকা</div>
+          </div>
+          <div class="card-body" id="top-areas">
+            <div class="empty-state"><div class="empty-icon">🗺️</div><div>ডেটা নেই</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;" class="resp-grid-3">
+        <!-- Order by day -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">📅 বারের হিসাব</div></div>
+          <div class="card-body" id="day-analysis">
+            <div class="empty-state"><div class="empty-icon">📅</div><div>ডেটা নেই</div></div>
+          </div>
+        </div>
+        <!-- Product qty -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🛒 পরিমাণ বিশ্লেষণ</div></div>
+          <div class="card-body" id="qty-analysis">
+            <div class="empty-state"><div class="empty-icon">📦</div><div>ডেটা নেই</div></div>
+          </div>
+        </div>
+        <!-- Delivery rate -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎯 কর্মক্ষমতা</div></div>
+          <div class="card-body" id="performance-box">
+            <div class="empty-state"><div class="empty-icon">📊</div><div>ডেটা নেই</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE: CUSTOMERS ========== -->
+    <div class="page" id="page-customers">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👥 কাস্টমার তালিকা</div>
+          <input class="search-bar" type="text" placeholder="🔍 নাম বা মোবাইল..." id="cust-search" oninput="filterCustomers()">
+        </div>
+        <div class="table-wrap">
+          <table id="customers-table">
+            <thead>
+              <tr>
+                <th>নাম</th>
+                <th>মোবাইল</th>
+                <th>মোট অর্ডার</th>
+                <th>মোট খরচ</th>
+                <th>শেষ অর্ডার</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="customers-body">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><div>কাস্টমার নেই</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE: EXPORT ========== -->
+    <div class="page" id="page-export">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="resp-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📥 ডেটা এক্সপোর্ট</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <button class="btn btn-primary" onclick="exportCSV()" style="justify-content:flex-start;">
+                📊 সব অর্ডার CSV ডাউনলোড
+              </button>
+              <button class="btn btn-secondary" onclick="exportJSON()" style="justify-content:flex-start;">
+                { } JSON ফরম্যাটে ডাউনলোড
+              </button>
+              <button class="btn btn-secondary" onclick="exportFilteredCSV()" style="justify-content:flex-start;">
+                📋 ফিল্টার করা অর্ডার CSV
+              </button>
+              <div style="border-top:1px solid var(--border);padding-top:12px;">
+                <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">তারিখ অনুযায়ী এক্সপোর্ট:</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="date" id="exp-from">
+                  <span style="color:var(--text-muted);">থেকে</span>
+                  <input type="date" id="exp-to">
+                  <button class="btn btn-primary btn-sm" onclick="exportDateRange()">Export</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🖨️ ইনভয়েস / প্রিন্ট</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <button class="btn btn-secondary" onclick="printOrders()" style="justify-content:flex-start;">
+                🖨️ অর্ডার তালিকা প্রিন্ট
+              </button>
+              <button class="btn btn-secondary" onclick="printDailyReport()" style="justify-content:flex-start;">
+                📄 দৈনিক রিপোর্ট প্রিন্ট
+              </button>
+            </div>
+            <div style="margin-top:16px;padding:14px;background:var(--bg3);border-radius:8px;font-size:13px;color:var(--text-muted);line-height:1.7;">
+              💡 <strong>টিপস:</strong> প্রিন্ট করার সময় Ctrl+P চাপুন। Landscape মোডে সুন্দর দেখাবে।
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAGE: SETTINGS ========== -->
+    <div class="page" id="page-settings">
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚙️ সেটিংস</div></div>
+        <div class="card-body">
+
+          <!-- Google Sheet -->
+          <div class="settings-section">
+            <div class="settings-title">📡 Google Sheet সংযোগ</div>
+
+            <div class="sheet-config-box" id="sheet-config-box">
+              <div class="sheet-status">
+                <div class="sheet-status-dot" id="sheet-dot"></div>
+                <div class="sheet-status-text" id="sheet-status-text">সংযুক্ত নয়</div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Google Apps Script URL (Web App URL)</label>
+                <input type="url" id="sheet-url-input" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" style="width:100%;">
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Sheet Name (ঐচ্ছিক, default: Sheet1)</label>
+                <input type="text" id="sheet-name-input" placeholder="Sheet1" style="width:100%;">
+              </div>
+              <button class="btn btn-primary" onclick="saveSheetConfig()">💾 সংরক্ষণ করুন</button>
+              <button class="btn btn-secondary" onclick="testSheetConnection()" style="margin-left:8px;">🔌 টেস্ট করুন</button>
+            </div>
+
+            <!-- Google Apps Script Code -->
+            <div style="margin-top:16px;">
+              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">
+                📋 Google Apps Script কোড (এটি আপনার Sheet এ Paste করুন):
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.7;">
+                Google Sheet খুলুন → Extensions → Apps Script → নিচের কোড Paste করে Deploy করুন
+              </div>
+              <div class="code-block" id="gas-code-block">
+<span class="c-comment">// ====== স্বপ্নের হাট বাজার — Google Apps Script ======
+// Sheet: Extensions → Apps Script → এই কোড paste করুন</span>
+
+<span class="c-keyword">function</span> doPost(e) {
+  <span class="c-keyword">var</span> sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  <span class="c-keyword">var</span> data = JSON.parse(e.postData.contents);
+
+  <span class="c-keyword">if</span>(sheet.getLastRow() === 0) {
+    sheet.appendRow([<span class="c-string">'তারিখ'</span>, <span class="c-string">'অর্ডার আইডি'</span>, <span class="c-string">'নাম'</span>, <span class="c-string">'মোবাইল'</span>,
+      <span class="c-string">'ঠিকানা'</span>, <span class="c-string">'পরিমাণ'</span>, <span class="c-string">'মোট টাকা'</span>, <span class="c-string">'ইমেইল'</span>, <span class="c-string">'স্ট্যাটাস'</span>]);
+    sheet.getRange(1,1,1,9).setBackground(<span class="c-string">'#1a3c2e'</span>)
+      .setFontColor(<span class="c-string">'white'</span>).setFontWeight(<span class="c-string">'bold'</span>);
+  }
+
+  sheet.appendRow([
+    <span class="c-keyword">new</span> Date(), data.orderId, data.name, data.phone,
+    data.address, data.qty, data.total, data.email || <span class="c-string">''</span>, <span class="c-string">'নতুন অর্ডার'</span>
+  ]);
+
+  <span class="c-keyword">var</span> lastRow = sheet.getLastRow();
+  sheet.getRange(lastRow,1,1,9).setBackground(<span class="c-string">'#fff9c4'</span>);
+
+  <span class="c-keyword">return</span> ContentService.createTextOutput(
+    JSON.stringify({status:<span class="c-string">'ok'</span>, row: lastRow})
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+
+<span class="c-keyword">function</span> doGet(e) {
+  <span class="c-keyword">var</span> sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  <span class="c-keyword">var</span> data = sheet.getDataRange().getValues();
+  <span class="c-keyword">var</span> headers = data[0];
+  <span class="c-keyword">var</span> orders = [];
+  <span class="c-keyword">for</span>(<span class="c-keyword">var</span> i=1; i&lt;data.length; i++) {
+    <span class="c-keyword">var</span> row = {};
+    headers.forEach(<span class="c-keyword">function</span>(h,j){ row[h] = data[i][j]; });
+    orders.push(row);
+  }
+  <span class="c-keyword">return</span> ContentService.createTextOutput(
+    JSON.stringify({status:<span class="c-string">'ok'</span>, orders: orders})
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="copyGASCode()" style="margin-top:8px;">📋 কোড কপি করুন</button>
+            </div>
+          </div>
+
+          <!-- Notification Settings -->
+          <div class="settings-section">
+            <div class="settings-title">🔔 নোটিফিকেশন</div>
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="s-label">🔊 সাউন্ড নোটিফিকেশন</div>
+                <div class="s-desc">নতুন অর্ডার আসলে শব্দ বাজবে</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="sound-toggle" checked onchange="saveSetting('sound', this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="s-label">🖥️ Browser নোটিফিকেশন</div>
+                <div class="s-desc">ব্রাউজারে popup notification</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="browser-notif-toggle" onchange="requestNotifPermission(this)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="s-label">⏱️ Auto-Sync সময়</div>
+                <div class="s-desc">কত সেকেন্ড পর পর Sheet চেক করবে</div>
+              </div>
+              <select id="sync-interval" onchange="saveSetting('syncInterval', this.value)" style="width:100px;">
+                <option value="15">১৫ সেকেন্ড</option>
+                <option value="30" selected>৩০ সেকেন্ড</option>
+                <option value="60">১ মিনিট</option>
+                <option value="120">২ মিনিট</option>
+                <option value="300">৫ মিনিট</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Data Management -->
+          <div class="settings-section">
+            <div class="settings-title">🗃️ ডেটা ব্যবস্থাপনা</div>
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="s-label">📊 LocalStorage ব্যাকআপ</div>
+                <div class="s-desc">Website এর order queue থেকে import করুন</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="importFromWebsite()">📥 Import</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="s-label">🗑️ সব ডেটা মুছুন</div>
+                <div class="s-desc">Admin Panel এর সব অর্ডার ডেটা মুছবে</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑️ মুছুন</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-info">
+                <div class="s-label">📤 ডেটা ব্যাকআপ</div>
+                <div class="s-desc">Admin Panel এর সব ডেটা JSON ফাইলে সেভ করুন</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="exportJSON()">💾 Backup</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ===== ORDER DETAIL MODAL ===== -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <div class="modal-title">📦 অর্ডার বিস্তারিত</div>
+      <button class="modal-close" onclick="closeModal('order-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="order-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('order-modal')">বন্ধ করুন</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveOrderFromModal()">💾 সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD ORDER MODAL ===== -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">➕ নতুন অর্ডার যোগ করুন</div>
+      <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">নাম *</label>
+          <input type="text" id="add-name" placeholder="গ্রাহকের নাম">
+        </div>
+        <div class="form-group">
+          <label class="form-label">মোবাইল *</label>
+          <input type="text" id="add-phone" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">ঠিকানা *</label>
+          <textarea id="add-address" placeholder="সম্পূর্ণ ঠিকানা লিখুন"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">পরিমাণ</label>
+          <input type="text" id="add-qty" value="1" placeholder="১">
+        </div>
+        <div class="form-group">
+          <label class="form-label">মোট (৳)</label>
+          <input type="text" id="add-total" placeholder="১০৯০">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ইমেইল</label>
+          <input type="text" id="add-email" placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">স্ট্যাটাস</label>
+          <select id="add-status">
+            <option>নতুন অর্ডার</option>
+            <option>কনফার্ম</option>
+            <option>প্রসেসিং</option>
+            <option>শিপড</option>
+            <option>ডেলিভারি সম্পন্ন</option>
+            <option>বাতিল</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('add-modal')">বাতিল</button>
+      <button class="btn btn-primary" onclick="addNewOrder()">➕ যোগ করুন</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.resp-grid { }
+.resp-grid-3 { }
+@media (max-width: 768px) {
+  .resp-grid { grid-template-columns: 1fr !important; }
+  .resp-grid-3 { grid-template-columns: 1fr !important; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<script>
+var DEFAULT_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxPFKCunw-TWLFQO9oKgoAsoJYPL4lvd7PfYaJRziXjg1rQ6gs1gme_q5ACb5JQS2CtMg/exec';
+
+// ===== APP STATE =====
+var APP = {
+  orders: [],
+  filteredOrders: [],
+  currentPage: 1,
+  pageSize: 15,
+  sortField: 'ts',
+  sortDir: 'desc',
+  liveInterval: null,
+  settings: {},
+  editingOrderId: null,
+  lastSyncCount: 0
+};
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+  loadSettings();
+  loadOrders();
+  updateNetwork();
+  window.addEventListener('online', updateNetwork);
+  window.addEventListener('offline', updateNetwork);
+  updateDashboard();
+  renderWeeklyChart();
+  renderDonut();
+  setTimeout(function() {
+    var sheetUrl = APP.settings.sheetUrl || DEFAULT_SHEET_URL;
+    document.getElementById('sheet-url-input').value = sheetUrl;
+    document.getElementById('sheet-dot').classList.add('active');
+    document.getElementById('sheet-status-text').textContent = 'URL সেট আছে ✅';
+    document.getElementById('sheet-status-text').classList.add('active');
+    var sheetName = APP.settings.sheetName || 'Sheet1';
+    document.getElementById('sheet-name-input').value = sheetName;
+    syncFromSheet();
+  }, 100);
+
+  // Request notif permission check
+  if(Notification && Notification.permission === 'granted') {
+    document.getElementById('browser-notif-toggle').checked = true;
+  }
+  // Update badge
+  updateBadges();
+});
+
+// ===== SETTINGS =====
+function loadSettings() {
+  try {
+    APP.settings = JSON.parse(localStorage.getItem('shb_admin_settings') || '{}');
+    if(!APP.settings.sheetUrl) {
+      APP.settings.sheetUrl = DEFAULT_SHEET_URL;
+      APP.settings.sheetName = 'Sheet1';
+      localStorage.setItem('shb_admin_settings', JSON.stringify(APP.settings));
+    }
+    var si = document.getElementById('sync-interval');
+    if(si && APP.settings.syncInterval) si.value = APP.settings.syncInterval;
+    var st = document.getElementById('sound-toggle');
+    if(st) st.checked = APP.settings.sound !== false;
+  } catch(e) {}
+}
+
+function saveSetting(key, val) {
+  APP.settings[key] = val;
+  localStorage.setItem('shb_admin_settings', JSON.stringify(APP.settings));
+  showToast('✅ সেটিং সংরক্ষিত হয়েছে', 'success');
+}
+
+function saveSheetConfig() {
+  var url = document.getElementById('sheet-url-input').value.trim();
+  var name = document.getElementById('sheet-name-input').value.trim();
+  if(!url) { showToast('⚠️ URL দিন', 'error'); return; }
+  APP.settings.sheetUrl = url;
+  APP.settings.sheetName = name || 'Sheet1';
+  localStorage.setItem('shb_admin_settings', JSON.stringify(APP.settings));
+  document.getElementById('sheet-dot').classList.add('active');
+  document.getElementById('sheet-status-text').textContent = 'URL সংরক্ষিত হয়েছে';
+  document.getElementById('sheet-status-text').classList.add('active');
+  showToast('✅ Google Sheet URL সেভ হয়েছে! এখন Sync করুন।', 'success');
+}
+
+function testSheetConnection() {
+  var url = document.getElementById('sheet-url-input').value.trim() || DEFAULT_SHEET_URL;
+  if(!url) { showToast('⚠️ আগে URL দিন', 'error'); return; }
+  showToast('🔌 সংযোগ পরীক্ষা করা হচ্ছে...', 'info');
+  fetchSheetJSONP(url,
+    function(d) {
+      if(d && d.status === 'ok') {
+        showToast('✅ সংযোগ সফল! ' + (d.orders ? d.orders.length + 'টি অর্ডার পাওয়া গেছে' : ''), 'success');
+      } else {
+        showToast('⚠️ Response পাওয়া গেছে কিন্তু data নেই', 'error');
+      }
+    },
+    function(e) {
+      showToast('❌ সংযোগ ব্যর্থ: ' + (e.message || 'CORS/Network error'), 'error');
+    }
+  );
+}
+
+// ===== ORDERS DATA =====
+function loadOrders() {
+  try {
+    APP.orders = JSON.parse(localStorage.getItem('shb_admin_orders') || '[]');
+  } catch(e) { APP.orders = []; }
+  APP.filteredOrders = [...APP.orders];
+}
+
+function saveOrders() {
+  localStorage.setItem('shb_admin_orders', JSON.stringify(APP.orders));
+}
+
+function mergeOrders(newOrders) {
+  var existingIds = new Set(APP.orders.map(function(o) { return o.id; }));
+  var addedCount = 0;
+  newOrders.forEach(function(o) {
+    if(!existingIds.has(o.id)) {
+      APP.orders.unshift(o);
+      addedCount++;
+      addActivity('new', '🆕 নতুন অর্ডার: <strong>' + o.name + '</strong> — ' + (o.total || 0).toLocaleString('bn-BD') + '৳', true);
+      if(APP.settings.sound !== false) playBeep();
+      if(Notification && Notification.permission === 'granted') {
+        new Notification('🆕 নতুন অর্ডার — ' + o.name, {
+          body: o.phone + ' | ' + (o.total || 0).toLocaleString() + '৳',
+          icon: '🛡️'
+        });
+      }
+    }
+  });
+  if(addedCount > 0) {
+    saveOrders();
+    updateDashboard();
+    renderOrders();
+    renderWeeklyChart();
+    renderDonut();
+    updateBadges();
+    showToast('🆕 ' + addedCount + 'টি নতুন অর্ডার এসেছে!', 'success');
+  }
+  return addedCount;
+}
+
+// ===== JSONP FETCH (CORS-safe for local file usage) =====
+function fetchSheetJSONP(url, callback, errback) {
+  var cbName = '__shb_cb_' + Date.now();
+  var script = document.createElement('script');
+  var timer = setTimeout(function() {
+    cleanup();
+    errback && errback(new Error('Timeout'));
+  }, 15000);
+
+  function cleanup() {
+    clearTimeout(timer);
+    delete window[cbName];
+    if(script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[cbName] = function(data) {
+    cleanup();
+    callback(data);
+  };
+
+  var sep = url.includes('?') ? '&' : '?';
+  script.src = url + sep + 'callback=' + cbName + '&t=' + Date.now();
+  script.onerror = function() {
+    cleanup();
+    // fallback: try regular fetch (works if hosted on server)
+    fetch(url + sep + 't=' + Date.now())
+      .then(function(r){ return r.json(); })
+      .then(callback)
+      .catch(errback);
+  };
+  document.head.appendChild(script);
+}
+
+// ===== SYNC FROM GOOGLE SHEET =====
+function syncFromSheet() {
+  var url = APP.settings.sheetUrl || DEFAULT_SHEET_URL;
+  if(!url) { showToast('⚠️ Sheet URL পাওয়া যায়নি', 'error'); return; }
+
+  var btn = document.getElementById('sync-btn');
+  if(btn) { btn.innerHTML = '⏳ Syncing...'; btn.disabled = true; }
+
+  function onSuccess(d) {
+    if(btn) { btn.innerHTML = '🔄 Sheet Sync'; btn.disabled = false; }
+    if(!d || d.status !== 'ok' || !d.orders) {
+      showToast('⚠️ Sheet থেকে ডেটা পাওয়া যায়নি', 'error');
+      return;
+    }
+    var sheetOrders = d.orders.map(function(row, i) {
+      var dateVal = row['তারিখ'] || row['তারিখ ও সময়'] || row[Object.keys(row)[0]];
+      var ts = dateVal ? new Date(dateVal).getTime() : (Date.now() - i * 1000);
+      if(isNaN(ts)) ts = Date.now() - i * 1000;
+      return {
+        id: row['অর্ডার আইডি'] || ('SHB-' + ts.toString(36).toUpperCase()),
+        name: row['নাম'] || '—',
+        phone: row['মোবাইল'] || '—',
+        address: row['ঠিকানা'] || '—',
+        qty: parseInt(row['পরিমাণ (টি)'] || row['পরিমাণ'] || 1),
+        total: parseInt(row['মোট টাকা (৳)'] || row['মোট টাকা'] || row['মোট'] || 0),
+        email: row['ইমেইল'] || '',
+        status: row['স্ট্যাটাস'] || 'নতুন অর্ডার',
+        ts: ts,
+        source: 'sheet'
+      };
+    });
+    var added = mergeOrders(sheetOrders);
+    var now = new Date().toLocaleTimeString('bn-BD');
+    var lst = document.getElementById('last-sync-text');
+    if(lst) lst.textContent = 'সর্বশেষ সিঙ্ক: ' + now;
+    var sls = document.getElementById('sheet-live-status');
+    if(sls) { sls.className = 'network-pill online'; sls.textContent = '✅ সংযুক্ত'; }
+    if(added === 0) showToast('✅ সিঙ্ক সম্পন্ন। কোনো নতুন অর্ডার নেই।', 'info');
+  }
+
+  function onError(e) {
+    if(btn) { btn.innerHTML = '🔄 Sheet Sync'; btn.disabled = false; }
+    var sls = document.getElementById('sheet-live-status');
+    if(sls) { sls.className = 'network-pill offline'; sls.textContent = '❌ সমস্যা'; }
+    showToast('❌ Sheet সিঙ্ক ব্যর্থ: ' + (e.message || e), 'error');
+  }
+
+  fetchSheetJSONP(url, onSuccess, onError);
+}
+
+// ===== LIVE SYNC =====
+var liveInterval = null;
+function startLiveSync() {
+  if(liveInterval) { showToast('⚡ লাইভ সিঙ্ক আগে থেকেই চালু আছে', 'info'); return; }
+  var interval = (parseInt(APP.settings.syncInterval) || 30) * 1000;
+  syncFromSheet();
+  liveInterval = setInterval(syncFromSheet, interval);
+  document.getElementById('sheet-live-status').className = 'network-pill online';
+  document.getElementById('sheet-live-status').innerHTML = '🟢 লাইভ চলছে';
+  showToast('▶️ লাইভ সিঙ্ক শুরু হয়েছে! প্রতি ' + (interval/1000) + ' সেকেন্ডে চেক করবে।', 'success');
+}
+
+function stopLiveSync() {
+  if(liveInterval) {
+    clearInterval(liveInterval);
+    liveInterval = null;
+    document.getElementById('sheet-live-status').className = 'network-pill offline';
+    document.getElementById('sheet-live-status').textContent = '⏹️ বন্ধ';
+    showToast('⏹️ লাইভ সিঙ্ক বন্ধ করা হয়েছে', 'info');
+  }
+}
+
+// ===== RENDER ORDERS TABLE =====
+function renderOrders() {
+  var tbody = document.getElementById('orders-body');
+  var orders = APP.filteredOrders;
+  var total = orders.length;
+  var start = (APP.currentPage - 1) * APP.pageSize;
+  var end = Math.min(start + APP.pageSize, total);
+  var pageOrders = orders.slice(start, end);
+
+  document.getElementById('orders-count-text').textContent = 'মোট ' + total + 'টি অর্ডার';
+  document.getElementById('pagination-info').textContent = (start+1) + ' - ' + end + ' এর মধ্যে ' + total;
+  document.getElementById('page-num').textContent = APP.currentPage;
+  document.getElementById('prev-btn').disabled = APP.currentPage <= 1;
+  document.getElementById('next-btn').disabled = end >= total;
+
+  if(pageOrders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">কোনো অর্ডার পাওয়া যায়নি</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = pageOrders.map(function(o) {
+    var date = o.ts ? new Date(o.ts).toLocaleDateString('bn-BD', {day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    var isNew = (Date.now() - (o.ts||0)) < 86400000 && o.status === 'নতুন অর্ডার';
+    return '<tr class="' + (isNew ? 'highlight-new' : '') + '">' +
+      '<td style="color:var(--text-muted);font-size:12px;">' + date + '</td>' +
+      '<td><span style="font-size:11px;color:var(--primary);font-weight:700;">' + (o.id||'—') + '</span></td>' +
+      '<td><strong>' + (o.name||'—') + '</strong></td>' +
+      '<td><a href="tel:' + (o.phone||'') + '" style="color:var(--blue);text-decoration:none;">' + (o.phone||'—') + '</a></td>' +
+      '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--text-muted);font-size:12px;">' + (o.address||'—') + '</td>' +
+      '<td style="text-align:center;font-weight:700;">' + (o.qty||1) + '</td>' +
+      '<td style="font-weight:700;color:var(--accent);">' + ((o.total||0)).toLocaleString('bn-BD') + '৳</td>' +
+      '<td><span class="status-badge ' + getStatusClass(o.status) + '">' + getStatusEmoji(o.status) + ' ' + (o.status||'নতুন') + '</span></td>' +
+      '<td>' +
+        '<div style="display:flex;gap:6px;">' +
+          '<button class="btn btn-secondary btn-sm btn-icon" onclick="viewOrder(\'' + o.id + '\')" data-tip="বিস্তারিত">👁️</button>' +
+          '<select onchange="updateStatus(\'' + o.id + '\', this.value)" style="font-size:11px;padding:4px 6px;max-width:110px;" title="স্ট্যাটাস পরিবর্তন">' +
+            ['নতুন অর্ডার','কনফার্ম','প্রসেসিং','শিপড','ডেলিভারি সম্পন্ন','বাতিল'].map(function(s) {
+              return '<option' + (o.status === s ? ' selected' : '') + '>' + s + '</option>';
+            }).join('') +
+          '</select>' +
+          '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteOrder(\'' + o.id + '\')" data-tip="মুছুন">🗑️</button>' +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function getStatusClass(s) {
+  var map = {
+    'নতুন অর্ডার':'status-new', 'কনফার্ম':'status-confirmed',
+    'প্রসেসিং':'status-processing', 'শিপড':'status-shipped',
+    'ডেলিভারি সম্পন্ন':'status-delivered', 'বাতিল':'status-cancelled'
+  };
+  return map[s] || 'status-new';
+}
+
+function getStatusEmoji(s) {
+  var map = {
+    'নতুন অর্ডার':'🆕', 'কনফার্ম':'✅', 'প্রসেসিং':'⚙️',
+    'শিপড':'🚚', 'ডেলিভারি সম্পন্ন':'📦', 'বাতিল':'❌'
+  };
+  return map[s] || '🔵';
+}
+
+// ===== FILTER & SORT =====
+function filterOrders() {
+  var search = (document.getElementById('order-search').value || '').toLowerCase();
+  var status = document.getElementById('status-filter').value;
+  var date = document.getElementById('date-filter').value;
+
+  APP.filteredOrders = APP.orders.filter(function(o) {
+    var matchSearch = !search ||
+      (o.name && o.name.toLowerCase().includes(search)) ||
+      (o.phone && o.phone.includes(search)) ||
+      (o.id && o.id.toLowerCase().includes(search)) ||
+      (o.address && o.address.toLowerCase().includes(search));
+    var matchStatus = !status || o.status === status;
+    var matchDate = !date || (o.ts && new Date(o.ts).toISOString().slice(0,10) === date);
+    return matchSearch && matchStatus && matchDate;
+  });
+
+  sortOrdersData();
+  APP.currentPage = 1;
+  renderOrders();
+}
+
+function setStatusFilter(status, el) {
+  document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+  if(el) el.classList.add('active');
+  document.getElementById('status-filter').value = status;
+  filterOrders();
+}
+
+var sortConfig = { field: 'ts', dir: 'desc' };
+function sortOrders(field) {
+  if(sortConfig.field === field) {
+    sortConfig.dir = sortConfig.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortConfig.field = field;
+    sortConfig.dir = 'desc';
+  }
+  document.querySelectorAll('thead th').forEach(function(th) {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+  });
+  event.target.classList.add('sorted-' + sortConfig.dir);
+  sortOrdersData();
+  renderOrders();
+}
+
+function sortOrdersData() {
+  APP.filteredOrders.sort(function(a, b) {
+    var va = a[sortConfig.field] || 0;
+    var vb = b[sortConfig.field] || 0;
+    if(typeof va === 'string') va = va.toLowerCase();
+    if(typeof vb === 'string') vb = vb.toLowerCase();
+    var r = va < vb ? -1 : va > vb ? 1 : 0;
+    return sortConfig.dir === 'asc' ? r : -r;
+  });
+}
+
+function changePage(d) {
+  var maxPage = Math.ceil(APP.filteredOrders.length / APP.pageSize);
+  APP.currentPage = Math.max(1, Math.min(APP.currentPage + d, maxPage));
+  renderOrders();
+}
+
+// ===== ORDER ACTIONS =====
+function viewOrder(id) {
+  var o = APP.orders.find(function(x) { return x.id === id; });
+  if(!o) return;
+  APP.editingOrderId = id;
+  var date = o.ts ? new Date(o.ts).toLocaleString('bn-BD') : '—';
+  document.getElementById('order-modal-body').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">' +
+      field('অর্ডার আইডি', '<span style="color:var(--primary);font-weight:700;">' + o.id + '</span>') +
+      field('তারিখ', date) +
+      editField('নাম', 'modal-name', o.name || '') +
+      editField('মোবাইল', 'modal-phone', o.phone || '') +
+      '<div class="form-group" style="grid-column:1/-1;">' +
+        '<label class="form-label">ঠিকানা</label>' +
+        '<textarea id="modal-address" style="width:100%;">' + (o.address || '') + '</textarea>' +
+      '</div>' +
+      editField('পরিমাণ', 'modal-qty', o.qty || 1) +
+      editField('মোট (৳)', 'modal-total', o.total || 0) +
+      editField('ইমেইল', 'modal-email', o.email || '') +
+      '<div class="form-group">' +
+        '<label class="form-label">স্ট্যাটাস</label>' +
+        '<select id="modal-status" style="width:100%;">' +
+          ['নতুন অর্ডার','কনফার্ম','প্রসেসিং','শিপড','ডেলিভারি সম্পন্ন','বাতিল'].map(function(s) {
+            return '<option' + (o.status === s ? ' selected' : '') + '>' + s + '</option>';
+          }).join('') +
+        '</select>' +
+      '</div>' +
+      (o.source === 'sheet' ? '<div style="grid-column:1/-1;background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.2);border-radius:6px;padding:10px;font-size:12px;color:var(--blue);">📡 Google Sheet থেকে আমদানি করা অর্ডার</div>' : '') +
+    '</div>';
+  document.getElementById('order-modal').classList.add('show');
+}
+
+function field(label, val) {
+  return '<div class="form-group"><label class="form-label">' + label + '</label><div style="padding:8px;background:var(--bg3);border-radius:6px;font-size:13px;">' + val + '</div></div>';
+}
+
+function editField(label, id, val) {
+  return '<div class="form-group"><label class="form-label">' + label + '</label><input type="text" id="' + id + '" value="' + val + '" style="width:100%;"></div>';
+}
+
+function saveOrderFromModal() {
+  var id = APP.editingOrderId;
+  var o = APP.orders.find(function(x) { return x.id === id; });
+  if(!o) return;
+  o.name = document.getElementById('modal-name').value;
+  o.phone = document.getElementById('modal-phone').value;
+  o.address = document.getElementById('modal-address').value;
+  o.qty = parseInt(document.getElementById('modal-qty').value) || 1;
+  o.total = parseInt(document.getElementById('modal-total').value) || 0;
+  o.email = document.getElementById('modal-email').value;
+  var oldStatus = o.status;
+  o.status = document.getElementById('modal-status').value;
+  saveOrders();
+  filterOrders();
+  updateDashboard();
+  renderDonut();
+  closeModal('order-modal');
+  if(o.status !== oldStatus) addActivity('default', '📝 অর্ডার আপডেট: <strong>' + o.name + '</strong> → ' + o.status, false);
+  showToast('✅ অর্ডার আপডেট হয়েছে', 'success');
+}
+
+function updateStatus(id, status) {
+  var o = APP.orders.find(function(x) { return x.id === id; });
+  if(!o) return;
+  var old = o.status;
+  o.status = status;
+  saveOrders();
+  filterOrders();
+  updateDashboard();
+  renderDonut();
+  updateBadges();
+  addActivity('default', '🔄 স্ট্যাটাস পরিবর্তন: <strong>' + o.name + '</strong> → ' + status, false);
+  showToast('✅ স্ট্যাটাস পরিবর্তন হয়েছে: ' + status, 'success');
+}
+
+function deleteOrder(id) {
+  if(!confirm('এই অর্ডারটি মুছে ফেলবেন?')) return;
+  APP.orders = APP.orders.filter(function(o) { return o.id !== id; });
+  saveOrders();
+  filterOrders();
+  updateDashboard();
+  renderOrders();
+  renderDonut();
+  showToast('🗑️ অর্ডার মুছা হয়েছে', 'info');
+}
+
+function openAddOrder() {
+  closeModal('order-modal');
+  document.getElementById('add-modal').classList.add('show');
+}
+
+function addNewOrder() {
+  var name = document.getElementById('add-name').value.trim();
+  var phone = document.getElementById('add-phone').value.trim();
+  var addr = document.getElementById('add-address').value.trim();
+  if(!name || !phone) { showToast('⚠️ নাম ও মোবাইল আবশ্যক', 'error'); return; }
+  var o = {
+    id: 'SHB-' + Date.now().toString(36).toUpperCase(),
+    name: name, phone: phone, address: addr,
+    qty: parseInt(document.getElementById('add-qty').value) || 1,
+    total: parseInt(document.getElementById('add-total').value) || 1090,
+    email: document.getElementById('add-email').value,
+    status: document.getElementById('add-status').value,
+    ts: Date.now(),
+    source: 'manual'
+  };
+  APP.orders.unshift(o);
+  saveOrders();
+  filterOrders();
+  updateDashboard();
+  renderOrders();
+  renderDonut();
+  renderWeeklyChart();
+  updateBadges();
+  closeModal('add-modal');
+  addActivity('new', '➕ ম্যানুয়াল অর্ডার যোগ: <strong>' + name + '</strong>', false);
+  showToast('✅ নতুন অর্ডার যোগ হয়েছে', 'success');
+  ['add-name','add-phone','add-address','add-qty','add-total','add-email'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+}
+
+// ===== DASHBOARD UPDATE =====
+function updateDashboard() {
+  var orders = APP.orders;
+  var total = orders.length;
+  var delivered = orders.filter(function(o) { return o.status === 'ডেলিভারি সম্পন্ন'; }).length;
+  var revenue = orders.filter(function(o) { return o.status !== 'বাতিল'; }).reduce(function(s,o) { return s+(o.total||0); }, 0);
+  var pending = orders.filter(function(o) { return ['নতুন অর্ডার','কনফার্ম','প্রসেসিং','শিপড'].includes(o.status); }).length;
+  var today = new Date().toDateString();
+  var todayOrders = orders.filter(function(o) { return o.ts && new Date(o.ts).toDateString() === today; });
+  var customers = new Set(orders.map(function(o) { return o.phone; })).size;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-delivered').textContent = delivered;
+  document.getElementById('stat-revenue').textContent = (revenue/1000).toFixed(1) + 'K৳';
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-today').textContent = todayOrders.length;
+  document.getElementById('stat-customers').textContent = customers;
+  document.getElementById('stat-del-pct').textContent = total > 0 ? Math.round(delivered/total*100) + '% ডেলিভারি' : '০%';
+  document.getElementById('stat-rev-sub').textContent = delivered + 'টি সম্পন্ন';
+  document.getElementById('stat-total-change').textContent = todayOrders.length > 0 ? '↑ আজ ' + todayOrders.length + 'টি নতুন' : '— আজ নতুন নেই';
+
+  // Live page stats
+  var todayNew = todayOrders.filter(function(o) { return o.status === 'নতুন অর্ডার'; }).length;
+  var todayDel = todayOrders.filter(function(o) { return o.status === 'ডেলিভারি সম্পন্ন'; }).length;
+  var todayRev = todayOrders.reduce(function(s,o) { return s+(o.total||0); }, 0);
+  var todayPending = todayOrders.filter(function(o) { return ['নতুন অর্ডার','কনফার্ম','প্রসেসিং'].includes(o.status); }).length;
+
+  var tn = document.getElementById('today-new'); if(tn) tn.textContent = todayNew;
+  var td = document.getElementById('today-del'); if(td) td.textContent = todayDel;
+  var tr = document.getElementById('today-rev'); if(tr) tr.textContent = todayRev.toLocaleString('bn-BD') + '৳';
+  var tp = document.getElementById('today-pending'); if(tp) tp.textContent = todayPending;
+
+  // Live new orders card
+  var liveDiv = document.getElementById('live-new-orders');
+  if(liveDiv) {
+    var newOrders = orders.filter(function(o) { return o.status === 'নতুন অর্ডার'; });
+    if(newOrders.length === 0) {
+      liveDiv.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">সব অর্ডার প্রসেস হয়েছে</div></div>';
+    } else {
+      liveDiv.innerHTML = newOrders.slice(0,5).map(function(o) {
+        var date = o.ts ? new Date(o.ts).toLocaleString('bn-BD') : '—';
+        return '<div class="activity-item activity-highlight" style="padding:12px;margin-bottom:8px;border-radius:8px;">' +
+          '<div class="activity-dot new">🆕</div>' +
+          '<div class="activity-text">' +
+            '<strong>' + (o.name||'—') + '</strong> (' + (o.phone||'—') + ')<br>' +
+            '<span style="font-size:12px;color:var(--text-muted);">' + (o.address||'—') + '</span><br>' +
+            '<span style="color:var(--accent);font-weight:700;">' + (o.total||0).toLocaleString('bn-BD') + '৳</span> | ' + (o.qty||1) + ' টি' +
+          '</div>' +
+          '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">' +
+            '<span style="font-size:11px;color:var(--text-muted);">' + date + '</span>' +
+            '<button class="btn btn-success btn-sm" onclick="updateStatus(\'' + o.id + '\', \'কনফার্ম\')">✅ কনফার্ম</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') + (newOrders.length > 5 ? '<div style="text-align:center;padding:8px;font-size:13px;color:var(--text-muted);">+ ' + (newOrders.length-5) + 'টি আরো নতুন অর্ডার</div>' : '');
+    }
+  }
+
+  // Recent orders table
+  renderRecentOrders(orders.slice(0,6));
+  updateAnalytics();
+  updateCustomers();
+}
+
+function renderRecentOrders(orders) {
+  var tbody = document.getElementById('recent-orders-body');
+  if(!tbody) return;
+  if(orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">কোনো অর্ডার নেই</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(function(o) {
+    return '<tr class="' + ((Date.now() - (o.ts||0)) < 3600000 && o.status === 'নতুন অর্ডার' ? 'highlight-new' : '') + '">' +
+      '<td style="font-size:11px;color:var(--primary);">' + (o.id||'—') + '</td>' +
+      '<td><strong>' + (o.name||'—') + '</strong></td>' +
+      '<td style="text-align:center;">' + (o.qty||1) + '</td>' +
+      '<td style="color:var(--accent);font-weight:700;">' + (o.total||0).toLocaleString('bn-BD') + '৳</td>' +
+      '<td><span class="status-badge ' + getStatusClass(o.status) + '">' + getStatusEmoji(o.status) + ' ' + (o.status||'নতুন') + '</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ===== ANALYTICS =====
+function updateAnalytics() {
+  var orders = APP.orders;
+
+  // Top areas
+  var areaMap = {};
+  orders.forEach(function(o) {
+    if(!o.address) return;
+    var parts = o.address.split(/[,،]/);
+    var area = parts[parts.length > 1 ? parts.length-2 : 0].trim().substring(0,20);
+    if(area) areaMap[area] = (areaMap[area]||0) + 1;
+  });
+  var sortedAreas = Object.entries(areaMap).sort(function(a,b) { return b[1]-a[1]; }).slice(0,6);
+  var topAreasEl = document.getElementById('top-areas');
+  if(topAreasEl) {
+    topAreasEl.innerHTML = sortedAreas.length === 0
+      ? '<div class="empty-state"><div class="empty-icon">🗺️</div><div>ডেটা নেই</div></div>'
+      : '<div class="location-list">' + sortedAreas.map(function(a) {
+          var pct = orders.length > 0 ? Math.round(a[1]/orders.length*100) : 0;
+          return '<div class="location-card"><div class="location-pct">' + pct + '%</div><div class="location-name">' + a[0] + '</div><div class="location-count">' + a[1] + ' অর্ডার</div></div>';
+        }).join('') + '</div>';
+  }
+
+  // Day analysis
+  var days = ['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'];
+  var dayCount = [0,0,0,0,0,0,0];
+  orders.forEach(function(o) { if(o.ts) dayCount[new Date(o.ts).getDay()]++; });
+  var dayEl = document.getElementById('day-analysis');
+  if(dayEl) {
+    var maxD = Math.max.apply(null, dayCount) || 1;
+    dayEl.innerHTML = days.map(function(d,i) {
+      var w = Math.round(dayCount[i]/maxD*100);
+      return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;">' +
+        '<span style="width:32px;color:var(--text-muted);">' + d + '</span>' +
+        '<div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:' + w + '%;"></div></div>' +
+        '<span style="width:24px;text-align:right;color:var(--text);font-weight:600;">' + dayCount[i] + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // Qty analysis
+  var qtyMap = {};
+  orders.forEach(function(o) { var q = (o.qty||1)+'টি'; qtyMap[q] = (qtyMap[q]||0)+1; });
+  var qtyEl = document.getElementById('qty-analysis');
+  if(qtyEl) {
+    var qEntries = Object.entries(qtyMap).sort(function(a,b){ return b[1]-a[1]; });
+    qtyEl.innerHTML = qEntries.length === 0
+      ? '<div class="empty-state"><div class="empty-icon">📦</div><div>ডেটা নেই</div></div>'
+      : qEntries.map(function(e) {
+          var pct = orders.length > 0 ? Math.round(e[1]/orders.length*100) : 0;
+          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;">' +
+            '<span style="width:40px;font-weight:700;color:var(--accent);">' + e[0] + '</span>' +
+            '<div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:' + pct + '%;background:var(--accent);"></div></div>' +
+            '<span style="width:30px;text-align:right;font-size:12px;color:var(--text-muted);">' + e[1] + '</span></div>';
+        }).join('');
+  }
+
+  // Performance
+  var perfEl = document.getElementById('performance-box');
+  if(perfEl && orders.length > 0) {
+    var cancelled = orders.filter(function(o) { return o.status === 'বাতিল'; }).length;
+    var deliveredPct = Math.round(orders.filter(function(o){ return o.status==='ডেলিভারি সম্পন্ন'; }).length/orders.length*100);
+    var cancelPct = Math.round(cancelled/orders.length*100);
+    var avgOrder = Math.round(orders.reduce(function(s,o){ return s+(o.total||0); },0)/orders.length);
+    perfEl.innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:12px;">' +
+        perf('✅ ডেলিভারি রেট', deliveredPct + '%', deliveredPct) +
+        perf('❌ বাতিল রেট', cancelPct + '%', 100-cancelPct) +
+        '<div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center;">' +
+          '<div style="font-size:22px;font-weight:800;color:var(--accent);">' + avgOrder.toLocaleString('bn-BD') + '৳</div>' +
+          '<div style="font-size:12px;color:var(--text-muted);">গড় অর্ডার মূল্য</div>' +
+        '</div>' +
+      '</div>';
+  }
+}
+
+function perf(label, val, pct) {
+  return '<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span style="color:var(--text-muted);">' + label + '</span><strong>' + val + '</strong></div><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;"></div></div></div>';
+}
+
+// ===== CUSTOMERS =====
+function updateCustomers() {
+  var custMap = {};
+  APP.orders.forEach(function(o) {
+    var k = o.phone || o.name;
+    if(!custMap[k]) custMap[k] = { name: o.name, phone: o.phone, orders: 0, total: 0, lastTs: 0 };
+    custMap[k].orders++;
+    custMap[k].total += (o.total||0);
+    if((o.ts||0) > custMap[k].lastTs) custMap[k].lastTs = o.ts;
+  });
+  var custs = Object.values(custMap).sort(function(a,b) { return b.total - a.total; });
+  APP._customers = custs;
+  filterCustomers();
+}
+
+function filterCustomers() {
+  var search = ((document.getElementById('cust-search') || {}).value || '').toLowerCase();
+  var custs = (APP._customers || []).filter(function(c) {
+    return !search || (c.name||'').toLowerCase().includes(search) || (c.phone||'').includes(search);
+  });
+  var tbody = document.getElementById('customers-body');
+  if(!tbody) return;
+  if(custs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><div>কাস্টমার নেই</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = custs.map(function(c, i) {
+    var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    var date = c.lastTs ? new Date(c.lastTs).toLocaleDateString('bn-BD') : '—';
+    return '<tr>' +
+      '<td><strong>' + medal + ' ' + (c.name||'—') + '</strong></td>' +
+      '<td><a href="tel:' + (c.phone||'') + '" style="color:var(--blue);text-decoration:none;">' + (c.phone||'—') + '</a></td>' +
+      '<td style="text-align:center;font-weight:700;">' + c.orders + '</td>' +
+      '<td style="font-weight:700;color:var(--accent);">' + c.total.toLocaleString('bn-BD') + '৳</td>' +
+      '<td style="font-size:12px;color:var(--text-muted);">' + date + '</td>' +
+      '<td><a href="tel:' + (c.phone||'') + '" class="btn btn-success btn-sm">📞 কল</a></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ===== CHARTS =====
+function renderWeeklyChart() {
+  var days = parseInt((document.getElementById('chart-period') || {}).value || 7);
+  var labels = [], counts = [];
+  for(var i = days-1; i >= 0; i--) {
+    var d = new Date(); d.setDate(d.getDate()-i);
+    var ds = d.toDateString();
+    var label = d.toLocaleDateString('en', {month:'short', day:'numeric'});
+    var count = APP.orders.filter(function(o) { return o.ts && new Date(o.ts).toDateString() === ds; }).length;
+    labels.push(label); counts.push(count);
+  }
+  renderBarChart('weekly-chart', labels, counts);
+  renderBarChart('revenue-chart', labels, APP.orders ? (function(){
+    var revs = [];
+    for(var i = days-1; i >= 0; i--) {
+      var d2 = new Date(); d2.setDate(d2.getDate()-i);
+      var ds2 = d2.toDateString();
+      var rev = APP.orders.filter(function(o){ return o.ts && new Date(o.ts).toDateString()===ds2; }).reduce(function(s,o){ return s+(o.total||0); },0);
+      revs.push(Math.round(rev/1000));
+    }
+    return revs;
+  })() : [], 'var(--blue)');
+}
+
+function renderBarChart(id, labels, values, color) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  var max = Math.max.apply(null, values) || 1;
+  color = color || 'linear-gradient(180deg, var(--primary), var(--primary-dark))';
+  el.innerHTML = labels.map(function(l, i) {
+    var h = Math.round((values[i] / max) * 150);
+    return '<div class="chart-bar-wrap">' +
+      '<div class="chart-bar-val">' + (values[i]||0) + '</div>' +
+      '<div class="chart-bar" style="height:' + h + 'px;background:' + color + ';"></div>' +
+      '<div class="chart-bar-label">' + l + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderDonut() {
+  var orders = APP.orders;
+  var statusMap = {
+    'নতুন অর্ডার': {color:'#e3b341', label:'নতুন'},
+    'কনফার্ম': {color:'#58a6ff', label:'কনফার্ম'},
+    'প্রসেসিং': {color:'#ff9a3c', label:'প্রসেসিং'},
+    'শিপড': {color:'#bc8cff', label:'শিপড'},
+    'ডেলিভারি সম্পন্ন': {color:'#3fb950', label:'ডেলিভারি'},
+    'বাতিল': {color:'#f85149', label:'বাতিল'}
+  };
+  var counts = {};
+  var total = orders.length;
+  orders.forEach(function(o) { counts[o.status] = (counts[o.status]||0)+1; });
+  if(total === 0) { document.getElementById('donut-legend').innerHTML = '<div style="font-size:12px;color:var(--text-muted);">ডেটা নেই</div>'; return; }
+
+  var svg = document.getElementById('donut-svg');
+  if(!svg) return;
+  var r = 15.915, circ = 2 * Math.PI * r;
+  var offset = 25;
+  var paths = '';
+  var legendHtml = '';
+
+  Object.entries(statusMap).forEach(function(entry) {
+    var s = entry[0], info = entry[1];
+    var c = counts[s] || 0;
+    if(c === 0) return;
+    var pct = c / total * 100;
+    var dash = pct / 100 * circ;
+    paths += '<circle cx="21" cy="21" r="' + r + '" fill="transparent" stroke="' + info.color + '" stroke-width="4" stroke-dasharray="' + dash + ' ' + (circ - dash) + '" stroke-dashoffset="' + offset + '"/>';
+    offset -= dash;
+    legendHtml += '<div class="donut-legend-item"><div class="donut-dot" style="background:' + info.color + ';"></div><span class="donut-legend-label">' + info.label + '</span><span class="donut-legend-val">' + c + '</span></div>';
+  });
+
+  svg.innerHTML = '<circle cx="21" cy="21" r="' + r + '" fill="transparent" stroke="var(--bg3)" stroke-width="4"/>' + paths +
+    '<text x="21" y="24" text-anchor="middle" fill="var(--text)" font-size="5" font-weight="bold">' + total + '</text>';
+  document.getElementById('donut-legend').innerHTML = legendHtml;
+}
+
+// ===== ACTIVITY FEED =====
+var activities = [];
+function addActivity(type, html, isNew) {
+  var time = new Date().toLocaleTimeString('bn-BD');
+  activities.unshift({ type, html, time, isNew });
+  if(activities.length > 20) activities.pop();
+  var feed = document.getElementById('activity-feed');
+  if(!feed) return;
+  var countEl = document.getElementById('activity-count');
+  if(countEl) countEl.textContent = activities.length + 'টি ইভেন্ট';
+  feed.innerHTML = activities.slice(0,8).map(function(a) {
+    return '<div class="activity-item' + (a.isNew ? ' activity-highlight' : '') + '">' +
+      '<div class="activity-dot ' + (a.type||'default') + '">' + (a.type==='new'?'🆕':a.type==='delivered'?'📦':a.type==='cancelled'?'❌':'🔵') + '</div>' +
+      '<div class="activity-text">' + a.html + '<div class="activity-time">' + a.time + '</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ===== BADGES =====
+function updateBadges() {
+  var newCount = APP.orders.filter(function(o) { return o.status === 'নতুন অর্ডার'; }).length;
+  var badge = document.getElementById('new-order-badge');
+  if(badge) badge.textContent = newCount;
+  var liveBadge = document.getElementById('live-badge');
+  if(liveBadge) liveBadge.textContent = newCount;
+}
+
+// ===== NAVIGATION =====
+function showPage(name, navEl) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var page = document.getElementById('page-' + name);
+  if(page) page.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  if(navEl) navEl.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+      if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'")) n.classList.add('active');
+    });
+  }
+
+  var titles = {
+    dashboard:'📊 ড্যাশবোর্ড', orders:'📦 অর্ডার তালিকা',
+    live:'🔴 লাইভ অর্ডার', analytics:'📈 বিশ্লেষণ',
+    customers:'👥 কাস্টমার', export:'📤 এক্সপোর্ট', settings:'⚙️ সেটিংস'
+  };
+  document.getElementById('page-title').textContent = titles[name] || 'Admin Panel';
+
+  if(name === 'orders') { filterOrders(); }
+  if(name === 'analytics') { renderWeeklyChart(); updateAnalytics(); }
+  if(name === 'customers') { updateCustomers(); }
+
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('mobile-open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// ===== NETWORK =====
+function updateNetwork() {
+  var pill = document.getElementById('network-pill');
+  if(!pill) return;
+  if(navigator.onLine) {
+    pill.className = 'network-pill online';
+    pill.innerHTML = '<span>🟢</span> অনলাইন';
+  } else {
+    pill.className = 'network-pill offline';
+    pill.innerHTML = '<span>🔴</span> অফলাইন';
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = msg;
+  container.appendChild(toast);
+  setTimeout(function() {
+    toast.classList.add('out');
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 3500);
+}
+
+// ===== SOUND =====
+function playBeep() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+// ===== NOTIFICATIONS =====
+function requestNotifPermission(el) {
+  if(el.checked) {
+    if(Notification.permission === 'default') {
+      Notification.requestPermission().then(function(p) {
+        if(p !== 'granted') { el.checked = false; showToast('⚠️ নোটিফিকেশন অনুমতি দেওয়া হয়নি', 'error'); }
+        else showToast('✅ নোটিফিকেশন চালু হয়েছে', 'success');
+      });
+    }
+  }
+}
+
+// ===== IMPORT FROM WEBSITE =====
+function importFromWebsite() {
+  try {
+    var raw = localStorage.getItem('shb_orders') || '[]';
+    var webOrders = JSON.parse(raw);
+    if(webOrders.length === 0) { showToast('⚠️ Website এ কোনো order পাওয়া যায়নি', 'info'); return; }
+    var mapped = webOrders.map(function(o) {
+      return {
+        id: o.id || ('SHB-' + Date.now().toString(36).toUpperCase()),
+        name: o.name, phone: o.phone, address: o.address,
+        qty: o.qty, total: o.total, email: o.email || '',
+        status: o.status || 'নতুন অর্ডার',
+        ts: o.ts || Date.now(),
+        source: 'website'
+      };
+    });
+    var added = mergeOrders(mapped);
+    showToast('✅ ' + added + 'টি নতুন অর্ডার Import হয়েছে (মোট ' + webOrders.length + ')', 'success');
+  } catch(e) {
+    showToast('❌ Import ব্যর্থ: ' + e.message, 'error');
+  }
+}
+
+// ===== EXPORT =====
+function exportCSV() { exportData(APP.orders, 'shb-orders-all'); }
+function exportFilteredCSV() { exportData(APP.filteredOrders, 'shb-orders-filtered'); }
+
+function exportData(orders, filename) {
+  var rows = [['তারিখ','অর্ডার আইডি','নাম','মোবাইল','ঠিকানা','পরিমাণ','মোট টাকা','ইমেইল','স্ট্যাটাস']];
+  orders.forEach(function(o) {
+    rows.push([
+      o.ts ? new Date(o.ts).toLocaleString('bn-BD') : '',
+      o.id, o.name, o.phone, o.address, o.qty, o.total, o.email || '', o.status
+    ]);
+  });
+  var csv = '\uFEFF' + rows.map(function(r) { return r.map(function(c) { return '"' + String(c||'').replace(/"/g,'""') + '"'; }).join(','); }).join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename + '-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ CSV ডাউনলোড শুরু হয়েছে', 'success');
+}
+
+function exportDateRange() {
+  var from = new Date(document.getElementById('exp-from').value);
+  var to = new Date(document.getElementById('exp-to').value);
+  to.setHours(23,59,59);
+  var filtered = APP.orders.filter(function(o) { var d=new Date(o.ts); return d>=from && d<=to; });
+  exportData(filtered, 'shb-orders-range');
+}
+
+function exportJSON() {
+  var data = { exportDate: new Date().toISOString(), totalOrders: APP.orders.length, orders: APP.orders };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'shb-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  showToast('✅ JSON Backup ডাউনলোড হচ্ছে', 'success');
+}
+
+function printOrders() {
+  var win = window.open('', '_blank');
+  var rows = APP.filteredOrders.map(function(o) {
+    return '<tr><td>' + (o.ts ? new Date(o.ts).toLocaleString('bn-BD') : '') + '</td><td>' + o.id + '</td><td>' + o.name + '</td><td>' + o.phone + '</td><td>' + o.address + '</td><td>' + o.qty + '</td><td>' + (o.total||0).toLocaleString('bn-BD') + '৳</td><td>' + (o.status||'') + '</td></tr>';
+  }).join('');
+  win.document.write('<html><head><meta charset="UTF-8"><title>SHB Orders</title><style>body{font-family:sans-serif;font-size:12px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:6px;text-align:left;}th{background:#1a3c2e;color:white;}</style></head><body><h2>স্বপ্নের হাট বাজার — অর্ডার তালিকা</h2><p>মোট: ' + APP.filteredOrders.length + 'টি | প্রিন্ট: ' + new Date().toLocaleString('bn-BD') + '</p><table><thead><tr><th>তারিখ</th><th>অর্ডার আইডি</th><th>নাম</th><th>মোবাইল</th><th>ঠিকানা</th><th>পরিমাণ</th><th>মোট</th><th>স্ট্যাটাস</th></tr></thead><tbody>' + rows + '</tbody></table></body></html>');
+  win.print();
+}
+
+function printDailyReport() {
+  var today = new Date().toDateString();
+  var todayOrders = APP.orders.filter(function(o) { return o.ts && new Date(o.ts).toDateString() === today; });
+  var totalRev = todayOrders.reduce(function(s,o){ return s+(o.total||0); },0);
+  var win = window.open('', '_blank');
+  win.document.write('<html><head><meta charset="UTF-8"><title>Daily Report</title><style>body{font-family:sans-serif;font-size:13px;max-width:700px;margin:20px auto;}h1{color:#1a3c2e;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;}th{background:#1a3c2e;color:white;}.summary{background:#f5f5f5;padding:16px;border-radius:8px;margin:16px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}.sum-item{text-align:center;}.sum-val{font-size:22px;font-weight:bold;color:#e8531a;}.sum-label{font-size:12px;color:#666;}</style></head><body><h1>📊 দৈনিক রিপোর্ট — ' + new Date().toLocaleDateString('bn-BD') + '</h1><div class="summary"><div class="sum-item"><div class="sum-val">' + todayOrders.length + '</div><div class="sum-label">মোট অর্ডার</div></div><div class="sum-item"><div class="sum-val">' + totalRev.toLocaleString('bn-BD') + '৳</div><div class="sum-label">মোট আয়</div></div><div class="sum-item"><div class="sum-val">' + todayOrders.filter(function(o){return o.status==='ডেলিভারি সম্পন্ন';}).length + '</div><div class="sum-label">ডেলিভারি সম্পন্ন</div></div></div><table><thead><tr><th>অর্ডার আইডি</th><th>নাম</th><th>মোবাইল</th><th>পরিমাণ</th><th>মোট</th><th>স্ট্যাটাস</th></tr></thead><tbody>' + todayOrders.map(function(o) { return '<tr><td>' + o.id + '</td><td>' + o.name + '</td><td>' + o.phone + '</td><td>' + o.qty + '</td><td>' + (o.total||0).toLocaleString('bn-BD') + '৳</td><td>' + (o.status||'') + '</td></tr>'; }).join('') + '</tbody></table></body></html>');
+  win.print();
+}
+
+// ===== GAS CODE COPY =====
+function copyGASCode() {
+  var code = `function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  if(sheet.getLastRow() === 0) {
+    sheet.appendRow(['তারিখ', 'অর্ডার আইডি', 'নাম', 'মোবাইল', 'ঠিকানা', 'পরিমাণ', 'মোট টাকা', 'ইমেইল', 'স্ট্যাটাস']);
+    sheet.getRange(1,1,1,9).setBackground('#1a3c2e').setFontColor('white').setFontWeight('bold');
+  }
+  sheet.appendRow([new Date(), data.orderId, data.name, data.phone, data.address, data.qty, data.total, data.email || '', 'নতুন অর্ডার']);
+  var lastRow = sheet.getLastRow();
+  sheet.getRange(lastRow,1,1,9).setBackground('#fff9c4');
+  return ContentService.createTextOutput(JSON.stringify({status:'ok', row: lastRow})).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var orders = [];
+  for(var i=1; i<data.length; i++) {
+    var row = {};
+    headers.forEach(function(h,j){ row[h] = data[i][j]; });
+    orders.push(row);
+  }
+  var result = JSON.stringify({status:'ok', orders: orders});
+  // JSONP support — if callback param provided, wrap in function call
+  var cb = e && e.parameter && e.parameter.callback;
+  if(cb) {
+    return ContentService.createTextOutput(cb + '(' + result + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.JSON);
+}`;
+  navigator.clipboard.writeText(code).then(function() {
+    showToast('✅ কোড কপি হয়েছে! Google Apps Script এ Paste করুন', 'success');
+  }).catch(function() {
+    showToast('⚠️ কপি করতে পারেনি। ম্যানুয়ালি সিলেক্ট করুন।', 'error');
+  });
+}
+
+// ===== CLEAR DATA =====
+function clearAllData() {
+  if(!confirm('সত্যিই সব ডেটা মুছবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না!')) return;
+  APP.orders = [];
+  APP.filteredOrders = [];
+  activities = [];
+  saveOrders();
+  updateDashboard();
+  renderOrders();
+  renderDonut();
+  renderWeeklyChart();
+  updateBadges();
+  showToast('🗑️ সব ডেটা মুছা হয়েছে', 'info');
+}
+
+// ===== DEMO DATA (for testing) =====
+function loadDemoData() {
+  var statuses = ['নতুন অর্ডার','কনফার্ম','প্রসেসিং','শিপড','ডেলিভারি সম্পন্ন','বাতিল'];
+  var names = ['আব্দুল করিম','রহিমা বেগম','মো: জাহিদ','নাসরিন আক্তার','কামাল হোসেন','সুমাইয়া খানম','রফিক উদ্দিন','মিনা বেগম','তানভীর আহমেদ','শিরিন আক্তার'];
+  var addrs = ['মিরপুর ১, ঢাকা','গুলশান ২, ঢাকা','দেওয়ানবাগ, চট্টগ্রাম','নওগাঁ সদর','সিলেট, জালালাবাদ','কুমিল্লা, কান্দিরপাড়','রাজশাহী, বোয়ালিয়া','খুলনা, সোনাডাঙ্গা','বরিশাল সদর','ময়মনসিংহ শহর'];
+  var demo = [];
+  for(var i=0; i<18; i++) {
+    var d = new Date(); d.setDate(d.getDate() - Math.floor(Math.random()*14));
+    var qty = [1,1,2,2,2,3,3,5][Math.floor(Math.random()*8)];
+    demo.push({
+      id: 'SHB-DEMO' + (i+1),
+      name: names[i%names.length], phone: '01' + (3+Math.floor(Math.random()*7)) + String(10000000+Math.floor(Math.random()*89999999)),
+      address: addrs[i%addrs.length], qty: qty, total: qty * 1090,
+      email: '', status: statuses[Math.floor(Math.random()*statuses.length)],
+      ts: d.getTime(), source: 'demo'
+    });
+  }
+  var added = mergeOrders(demo);
+  showToast('✅ ' + added + 'টি ডেমো অর্ডার যোগ হয়েছে', 'success');
+  showPage('dashboard', document.querySelector('.nav-item'));
+}
+
+// Auto start live sync
+setTimeout(function() {
+  startLiveSync();
+}, 3000);
+</script>
+
+<!-- Demo data button (bottom right) -->
+<div style="position:fixed;bottom:20px;right:20px;z-index:200;">
+  <button onclick="loadDemoData()" class="btn btn-secondary btn-sm" style="opacity:0.6;" title="ডেমো ডেটা লোড করুন (টেস্টিং)">
+    🧪 Demo
+  </button>
+</div>
+
+</body>
+</html>
