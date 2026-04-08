@@ -1722,18 +1722,18 @@ function syncFromSheet() {
       return;
     }
     var sheetOrders = d.orders.map(function(row, i) {
-      var dateVal = row['তারিখ'] || row['তারিখ ও সময়'] || row[Object.keys(row)[0]];
+      var dateVal = row['Date'] || row['তারিখ'] || row['তারিখ ও সময়'] || row[Object.keys(row)[0]];
       var ts = dateVal ? new Date(dateVal).getTime() : (Date.now() - i * 1000);
       if(isNaN(ts)) ts = Date.now() - i * 1000;
       return {
-        id: row['অর্ডার আইডি'] || ('SHB-' + ts.toString(36).toUpperCase()),
-        name: row['নাম'] || '—',
-        phone: row['মোবাইল'] || '—',
-        address: row['ঠিকানা'] || '—',
-        qty: parseInt(row['পরিমাণ (টি)'] || row['পরিমাণ'] || 1),
-        total: parseInt(row['মোট টাকা (৳)'] || row['মোট টাকা'] || row['মোট'] || 0),
-        email: row['ইমেইল'] || '',
-        status: row['স্ট্যাটাস'] || 'নতুন অর্ডার',
+        id: row['Order-ID'] || row['অর্ডার আইডি'] || ('SHB-' + ts.toString(36).toUpperCase()),
+        name: row['Name'] || row['নাম'] || '—',
+        phone: row['Phone'] || row['মোবাইল'] || '—',
+        address: row['Address'] || row['ঠিকানা'] || '—',
+        qty: parseInt(row['Qty'] || row['পরিমাণ (টি)'] || row['পরিমাণ'] || 1),
+        total: parseInt(row['Amount'] || row['মোট টাকা (৳)'] || row['মোট টাকা'] || row['মোট'] || 0),
+        email: row['E-mail'] || row['ইমেইল'] || '',
+        status: row['Status'] || row['স্ট্যাটাস'] || 'নতুন অর্ডার',
         ts: ts,
         source: 'sheet'
       };
@@ -2510,7 +2510,7 @@ function copyGASCode() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
   if(sheet.getLastRow() === 0) {
-    sheet.appendRow(['তারিখ', 'অর্ডার আইডি', 'নাম', 'মোবাইল', 'ঠিকানা', 'পরিমাণ', 'মোট টাকা', 'ইমেইল', 'স্ট্যাটাস']);
+    sheet.appendRow(['Date', 'Order-ID', 'Name', 'Phone', 'Address', 'Qty', 'Amount', 'E-mail', 'Status']);
     sheet.getRange(1,1,1,9).setBackground('#1a3c2e').setFontColor('white').setFontWeight('bold');
   }
   sheet.appendRow([new Date(), data.orderId, data.name, data.phone, data.address, data.qty, data.total, data.email || '', 'নতুন অর্ডার']);
