@@ -888,6 +888,9 @@ textarea { resize: vertical; min-height: 80px; width: 100%; }
   </button>
 
   <div class="sidebar-section">ব্যবস্থাপনা</div>
+  <button class="nav-item" onclick="showPage('bulk', this)">
+    <span class="nav-icon">⚡</span> Bulk অ্যাকশন
+  </button>
   <button class="nav-item" onclick="showPage('export', this)">
     <span class="nav-icon">📤</span> এক্সপোর্ট / প্রিন্ট
   </button>
@@ -913,6 +916,9 @@ textarea { resize: vertical; min-height: 80px; width: 100%; }
       <div class="network-pill online" id="network-pill">
         <span>🟢</span> অনলাইন
       </div>
+      <button class="btn btn-primary btn-sm" onclick="openAddOrder()" style="gap:4px;">
+        ➕ অর্ডার
+      </button>
       <button class="sync-btn" onclick="syncFromSheet()" id="sync-btn" data-tip="Google Sheet থেকে আপডেট নিন">
         🔄 Sheet Sync
       </button>
@@ -1256,6 +1262,80 @@ textarea { resize: vertical; min-height: 80px; width: 100%; }
       </div>
     </div>
 
+    <!-- ========== PAGE: BULK ========== -->
+    <div class="page" id="page-bulk">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="resp-grid">
+        <!-- Bulk Status Update -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚡ Bulk স্ট্যাটাস পরিবর্তন</div></div>
+          <div class="card-body">
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.7;">
+              একসাথে অনেক অর্ডারের স্ট্যাটাস পরিবর্তন করুন। যেমন: সব "নতুন অর্ডার" কে "কনফার্ম" করুন।
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">এই স্ট্যাটাস থেকে</label>
+                <select id="bulk-from-status" style="width:100%;">
+                  <option value="নতুন অর্ডার">নতুন অর্ডার</option>
+                  <option value="কনফার্ম">কনফার্ম</option>
+                  <option value="প্রসেসিং">প্রসেসিং</option>
+                  <option value="শিপড">শিপড</option>
+                  <option value="ডেলিভারি সম্পন্ন">ডেলিভারি সম্পন্ন</option>
+                  <option value="বাতিল">বাতিল</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">এই স্ট্যাটাসে পরিবর্তন করুন</label>
+                <select id="bulk-to-status" style="width:100%;">
+                  <option value="কনফার্ম">কনফার্ম</option>
+                  <option value="প্রসেসিং">প্রসেসিং</option>
+                  <option value="শিপড">শিপড</option>
+                  <option value="ডেলিভারি সম্পন্ন">ডেলিভারি সম্পন্ন</option>
+                  <option value="বাতিল">বাতিল</option>
+                  <option value="নতুন অর্ডার">নতুন অর্ডার</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="bulkUpdateStatus()" style="margin-top:12px;width:100%;justify-content:center;">
+              ⚡ Bulk আপডেট করুন
+            </button>
+            <div style="margin-top:12px;padding:10px;background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.2);border-radius:8px;font-size:12px;color:var(--red);">
+              ⚠️ এই কাজ পূর্বাবস্থায় ফেরানো যাবে না। সতর্কতার সাথে ব্যবহার করুন।
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats for Bulk -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">📊 স্ট্যাটাস সংখ্যা</div></div>
+          <div class="card-body" id="bulk-stats">
+            <div class="empty-state"><div class="empty-icon">📊</div><div>লোড হচ্ছে...</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Bulk -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header"><div class="card-title">💬 WhatsApp Message Tool</div></div>
+        <div class="card-body">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.7;">
+            নির্দিষ্ট স্ট্যাটাসের অর্ডারগুলোর কাস্টমারদের WhatsApp Message পাঠান।
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="wa-status-filter" style="min-width:160px;">
+              <option value="নতুন অর্ডার">নতুন অর্ডার</option>
+              <option value="কনফার্ম">কনফার্ম</option>
+              <option value="শিপড">শিপড</option>
+            </select>
+            <button class="btn btn-success" onclick="openWhatsAppBulk()">
+              💬 এই স্ট্যাটাসের অর্ডার তালিকা দেখুন
+            </button>
+          </div>
+          <div id="wa-order-list" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ========== PAGE: EXPORT ========== -->
     <div class="page" id="page-export">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="resp-grid">
@@ -1428,6 +1508,13 @@ textarea { resize: vertical; min-height: 80px; width: 100%; }
             <div class="settings-title">🗃️ ডেটা ব্যবস্থাপনা</div>
             <div class="settings-row">
               <div class="settings-info">
+                <div class="s-label">📥 JSON Backup Restore</div>
+                <div class="s-desc">আগে সেভ করা JSON ব্যাকআপ থেকে ডেটা ফিরিয়ে আনুন</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="restoreFromJSON()">📂 Restore</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-info">
                 <div class="s-label">📊 LocalStorage ব্যাকআপ</div>
                 <div class="s-desc">Website এর order queue থেকে import করুন</div>
               </div>
@@ -1465,6 +1552,8 @@ textarea { resize: vertical; min-height: 80px; width: 100%; }
     </div>
     <div class="modal-body" id="order-modal-body"></div>
     <div class="modal-footer">
+      <button class="btn btn-success btn-sm" id="modal-wa-btn" onclick="">💬 WhatsApp</button>
+      <button class="btn btn-secondary btn-sm" id="modal-invoice-btn" onclick="">🧾 Invoice Print</button>
       <button class="btn btn-secondary" onclick="closeModal('order-modal')">বন্ধ করুন</button>
       <button class="btn btn-primary" id="modal-save-btn" onclick="saveOrderFromModal()">💾 সংরক্ষণ</button>
     </div>
@@ -1812,8 +1901,10 @@ function renderOrders() {
       '<td style="font-weight:700;color:var(--accent);">' + ((o.total||0)).toLocaleString('bn-BD') + '৳</td>' +
       '<td><span class="status-badge ' + getStatusClass(o.status) + '">' + getStatusEmoji(o.status) + ' ' + (o.status||'নতুন') + '</span></td>' +
       '<td>' +
-        '<div style="display:flex;gap:6px;">' +
+        '<div style="display:flex;gap:4px;flex-wrap:wrap;">' +
           '<button class="btn btn-secondary btn-sm btn-icon" onclick="viewOrder(\'' + o.id + '\')" data-tip="বিস্তারিত">👁️</button>' +
+          '<button class="btn btn-success btn-sm btn-icon" onclick="sendWhatsApp(\'' + (o.phone||'') + '\',\'' + (o.name||'').replace(/'/g,"") + '\',\'' + o.id + '\',\'' + (o.status||'') + '\')" data-tip="WhatsApp">💬</button>' +
+          '<button class="btn btn-secondary btn-sm btn-icon" onclick="printInvoice(\'' + o.id + '\')" data-tip="ইনভয়েস">🧾</button>' +
           '<select onchange="updateStatus(\'' + o.id + '\', this.value)" style="font-size:11px;padding:4px 6px;max-width:110px;" title="স্ট্যাটাস পরিবর্তন">' +
             ['নতুন অর্ডার','কনফার্ম','প্রসেসিং','শিপড','ডেলিভারি সম্পন্ন','বাতিল'].map(function(s) {
               return '<option' + (o.status === s ? ' selected' : '') + '>' + s + '</option>';
@@ -1935,6 +2026,11 @@ function viewOrder(id) {
       (o.source === 'sheet' ? '<div style="grid-column:1/-1;background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.2);border-radius:6px;padding:10px;font-size:12px;color:var(--blue);">📡 Google Sheet থেকে আমদানি করা অর্ডার</div>' : '') +
     '</div>';
   document.getElementById('order-modal').classList.add('show');
+  // Set WhatsApp and invoice buttons
+  var waBtn = document.getElementById('modal-wa-btn');
+  var invBtn = document.getElementById('modal-invoice-btn');
+  if(waBtn) waBtn.onclick = function(){ sendWhatsApp(o.phone, o.name, o.id, o.status); };
+  if(invBtn) invBtn.onclick = function(){ printInvoice(o.id); };
 }
 
 function field(label, val) {
@@ -2349,13 +2445,15 @@ function showPage(name, navEl) {
   var titles = {
     dashboard:'📊 ড্যাশবোর্ড', orders:'📦 অর্ডার তালিকা',
     live:'🔴 লাইভ অর্ডার', analytics:'📈 বিশ্লেষণ',
-    customers:'👥 কাস্টমার', export:'📤 এক্সপোর্ট', settings:'⚙️ সেটিংস'
+    customers:'👥 কাস্টমার', export:'📤 এক্সপোর্ট', 
+    settings:'⚙️ সেটিংস', bulk:'⚡ Bulk অ্যাকশন'
   };
   document.getElementById('page-title').textContent = titles[name] || 'Admin Panel';
 
   if(name === 'orders') { filterOrders(); }
   if(name === 'analytics') { renderWeeklyChart(); updateAnalytics(); }
   if(name === 'customers') { updateCustomers(); }
+  if(name === 'bulk') { renderBulkStats(); }
 
   // Close mobile sidebar
   document.getElementById('sidebar').classList.remove('mobile-open');
@@ -2559,26 +2657,143 @@ function clearAllData() {
   showToast('🗑️ সব ডেটা মুছা হয়েছে', 'info');
 }
 
-// ===== DEMO DATA (for testing) =====
-function loadDemoData() {
+// ===== BULK STATS =====
+function renderBulkStats() {
   var statuses = ['নতুন অর্ডার','কনফার্ম','প্রসেসিং','শিপড','ডেলিভারি সম্পন্ন','বাতিল'];
-  var names = ['আব্দুল করিম','রহিমা বেগম','মো: জাহিদ','নাসরিন আক্তার','কামাল হোসেন','সুমাইয়া খানম','রফিক উদ্দিন','মিনা বেগম','তানভীর আহমেদ','শিরিন আক্তার'];
-  var addrs = ['মিরপুর ১, ঢাকা','গুলশান ২, ঢাকা','দেওয়ানবাগ, চট্টগ্রাম','নওগাঁ সদর','সিলেট, জালালাবাদ','কুমিল্লা, কান্দিরপাড়','রাজশাহী, বোয়ালিয়া','খুলনা, সোনাডাঙ্গা','বরিশাল সদর','ময়মনসিংহ শহর'];
-  var demo = [];
-  for(var i=0; i<18; i++) {
-    var d = new Date(); d.setDate(d.getDate() - Math.floor(Math.random()*14));
-    var qty = [1,1,2,2,2,3,3,5][Math.floor(Math.random()*8)];
-    demo.push({
-      id: 'SHB-DEMO' + (i+1),
-      name: names[i%names.length], phone: '01' + (3+Math.floor(Math.random()*7)) + String(10000000+Math.floor(Math.random()*89999999)),
-      address: addrs[i%addrs.length], qty: qty, total: qty * 1090,
-      email: '', status: statuses[Math.floor(Math.random()*statuses.length)],
-      ts: d.getTime(), source: 'demo'
-    });
-  }
-  var added = mergeOrders(demo);
-  showToast('✅ ' + added + 'টি ডেমো অর্ডার যোগ হয়েছে', 'success');
-  showPage('dashboard', document.querySelector('.nav-item'));
+  var colors = ['var(--yellow)','var(--blue)','var(--orange)','var(--purple)','#4caf50','var(--red)'];
+  var el = document.getElementById('bulk-stats');
+  if(!el) return;
+  if(APP.orders.length === 0) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div>কোনো অর্ডার নেই</div></div>'; return; }
+  el.innerHTML = statuses.map(function(s, i) {
+    var cnt = APP.orders.filter(function(o){ return o.status === s; }).length;
+    var pct = APP.orders.length > 0 ? Math.round(cnt/APP.orders.length*100) : 0;
+    return '<div style="margin-bottom:14px;">' +
+      '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+        '<span style="font-size:13px;color:var(--text);">' + s + '</span>' +
+        '<span style="font-weight:700;color:' + colors[i] + ';">' + cnt + 'টি</span>' +
+      '</div>' +
+      '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + colors[i] + ';"></div></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ===== WHATSAPP BULK OPEN =====
+function openWhatsAppBulk() {
+  var status = document.getElementById('wa-status-filter').value;
+  var orders = APP.orders.filter(function(o){ return o.status === status; });
+  var el = document.getElementById('wa-order-list');
+  if(!el) return;
+  if(orders.length === 0) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><div>এই স্ট্যাটাসে কোনো অর্ডার নেই</div></div>'; return; }
+  el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">' + orders.length + 'টি অর্ডার পাওয়া গেছে:</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;">' +
+    orders.map(function(o) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);">' +
+        '<div>' +
+          '<strong>' + (o.name||'—') + '</strong>' +
+          '<span style="color:var(--text-muted);font-size:12px;margin-left:10px;">' + (o.phone||'—') + '</span>' +
+          '<span style="color:var(--primary);font-size:11px;margin-left:10px;">' + o.id + '</span>' +
+        '</div>' +
+        '<button class="btn btn-success btn-sm" onclick="sendWhatsApp(\'' + (o.phone||'') + '\',\'' + (o.name||'').replace(/'/g,'') + '\',\'' + o.id + '\',\'' + status + '\')">💬 WhatsApp</button>' +
+      '</div>';
+    }).join('') +
+    '</div>';
+}
+
+// ===== RESTORE FROM JSON BACKUP =====
+function restoreFromJSON() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var data = JSON.parse(ev.target.result);
+        var orders = data.orders || data;
+        if(!Array.isArray(orders)) { showToast('❌ Invalid JSON format', 'error'); return; }
+        if(!confirm('এই JSON ফাইলে ' + orders.length + 'টি অর্ডার আছে। Restore করবেন?')) return;
+        APP.orders = orders;
+        APP.filteredOrders = [...APP.orders];
+        saveOrders();
+        updateDashboard();
+        filterOrders();
+        renderDonut();
+        renderWeeklyChart();
+        updateBadges();
+        showToast('✅ ' + orders.length + 'টি অর্ডার Restore হয়েছে!', 'success');
+      } catch(err) {
+        showToast('❌ JSON পড়তে সমস্যা: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ===== WHATSAPP SEND =====
+function sendWhatsApp(phone, name, orderId, status) {
+  var cleaned = (phone || '').replace(/[^0-9]/g,'');
+  if(cleaned.startsWith('0')) cleaned = '88' + cleaned;
+  var msg = 'আসসালামু আলাইকুম ' + name + ' ভাই/আপু,\n\nআপনার অর্ডার আইডি: *' + orderId + '*\nবর্তমান স্ট্যাটাস: *' + status + '*\n\nধন্যবাদ — স্বপ্নের হাট বাজার 🛒';
+  window.open('https://wa.me/' + cleaned + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ===== PRINT SINGLE INVOICE =====
+function printInvoice(id) {
+  var o = APP.orders.find(function(x) { return x.id === id; });
+  if(!o) return;
+  var win = window.open('', '_blank');
+  var date = o.ts ? new Date(o.ts).toLocaleString('bn-BD') : '—';
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice ${o.id}</title>
+  <style>
+    body{font-family:'Hind Siliguri',sans-serif;max-width:500px;margin:30px auto;font-size:14px;color:#333;}
+    .logo{text-align:center;margin-bottom:20px;}
+    .logo h2{color:#e8531a;font-size:22px;margin:0;}
+    .logo p{color:#666;font-size:12px;margin:4px 0 0;}
+    .divider{border:none;border-top:2px dashed #e8531a;margin:16px 0;}
+    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;}
+    .row:last-child{border:none;}
+    .label{color:#666;font-size:12px;}
+    .val{font-weight:600;}
+    .total-box{background:#1a3c2e;color:white;padding:14px;border-radius:8px;margin-top:16px;text-align:center;}
+    .total-box .amt{font-size:28px;font-weight:800;color:#f7c94e;}
+    .footer{text-align:center;margin-top:20px;color:#999;font-size:11px;}
+    .status-badge{display:inline-block;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;background:#e8531a;color:white;}
+  </style></head><body>
+  <div class="logo"><h2>🛡️ স্বপ্নের হাট বাজার</h2><p>অর্ডার ইনভয়েস</p></div>
+  <hr class="divider">
+  <div class="row"><span class="label">অর্ডার আইডি</span><span class="val" style="color:#e8531a;">${o.id}</span></div>
+  <div class="row"><span class="label">তারিখ</span><span class="val">${date}</span></div>
+  <div class="row"><span class="label">গ্রাহকের নাম</span><span class="val">${o.name||'—'}</span></div>
+  <div class="row"><span class="label">মোবাইল</span><span class="val">${o.phone||'—'}</span></div>
+  <div class="row"><span class="label">ঠিকানা</span><span class="val">${o.address||'—'}</span></div>
+  <div class="row"><span class="label">পরিমাণ</span><span class="val">${o.qty||1} পিস</span></div>
+  <div class="row"><span class="label">প্রতি পিস দাম</span><span class="val">${o.qty ? Math.round((o.total||0)/(o.qty||1)) : (o.total||0)}৳</span></div>
+  <hr class="divider">
+  <div class="total-box"><div>মোট মূল্য</div><div class="amt">${(o.total||0).toLocaleString()}৳</div></div>
+  <div style="margin-top:14px;text-align:center;"><span class="status-badge">${o.status||'নতুন অর্ডার'}</span></div>
+  <div class="footer"><p>ধন্যবাদ আমাদের সাথে কেনাকাটা করার জন্য!</p><p>স্বপ্নের হাট বাজার — আপনার বিশ্বস্ত অনলাইন শপ 🛒</p></div>
+  </body></html>`);
+  win.print();
+}
+
+// ===== BULK STATUS UPDATE =====
+function bulkUpdateStatus() {
+  var sel = document.getElementById('bulk-from-status').value;
+  var to = document.getElementById('bulk-to-status').value;
+  if(!sel || !to || sel === to) { showToast('⚠️ আলাদা স্ট্যাটাস বেছে নিন', 'error'); return; }
+  var count = APP.orders.filter(function(o){ return o.status === sel; }).length;
+  if(count === 0) { showToast('⚠️ এই স্ট্যাটাসে কোনো অর্ডার নেই', 'info'); return; }
+  if(!confirm(count + 'টি অর্ডার "' + sel + '" থেকে "' + to + '" এ পরিবর্তন করবেন?')) return;
+  APP.orders.forEach(function(o){ if(o.status === sel) o.status = to; });
+  saveOrders();
+  filterOrders();
+  updateDashboard();
+  renderDonut();
+  updateBadges();
+  showToast('✅ ' + count + 'টি অর্ডারের স্ট্যাটাস পরিবর্তন হয়েছে', 'success');
 }
 
 // Auto start live sync
@@ -2587,12 +2802,7 @@ setTimeout(function() {
 }, 3000);
 </script>
 
-<!-- Demo data button (bottom right) -->
-<div style="position:fixed;bottom:20px;right:20px;z-index:200;">
-  <button onclick="loadDemoData()" class="btn btn-secondary btn-sm" style="opacity:0.6;" title="ডেমো ডেটা লোড করুন (টেস্টিং)">
-    🧪 Demo
-  </button>
-</div>
+
 
 </body>
 </html>
